@@ -1,4 +1,4 @@
-from wecs.core import Component, System
+from wecs.core import Entity, Component, System
 from wecs.core import and_filter
 
 from panda3d import core
@@ -21,17 +21,34 @@ class Terrain:
     )
 
 
+@Component()
+class TerrainObject:
+    """Components for objects that are positioned relative to the terrain."""
+
+    terrain: Entity
+    model: core.NodePath = None
+    position: tuple = (0, 0, 0)
+
+
 class TerrainSystem(System):
     entity_filters = {
         'terrain': and_filter([Terrain]),
+        'object': and_filter([TerrainObject]),
     }
 
     def __init__(self):
         System.__init__(self)
 
         self.terrains = {}
+        self.objects = {}
 
     def init_entity(self, filter_name, entity):
+        if filter_name == 'terrain':
+            return self.init_terrain(entity)
+        elif filter_name == 'object':
+            return self.init_terrain_object(entity)
+
+    def init_terrain(self, entity):
         component = entity[Terrain]
 
         noise = core.StackedPerlinNoise2()
@@ -76,6 +93,28 @@ class TerrainSystem(System):
 
         self.terrains[entity] = terrain
 
+    def init_terrain_object(self, entity):
+        obj = entity[TerrainObject]
+
+        path = base.render.attach_new_node(entity._uid.name)
+        self.objects[entity] = path
+
+        if obj.model:
+            model = loader.load_model(obj.model)
+            model.reparent_to(path)
+
+    def update(self, entities_by_filter):
+        for entity in entities_by_filter['object']:
+            component = entity[TerrainObject]
+            pos = component.position
+
+            res = component.terrain[Terrain].resolution
+            terrain = self.terrains[component.terrain]
+            z = terrain.get_elevation(pos[0] * res, pos[1] * res)
+            path = self.objects[entity]
+            path.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
+
     def destroy_entity(self, filter_name, entity):
-        terrain = self.terrains.pop(entity)
-        terrain.get_root().remove_node()
+        if filter_name == 'terrain':
+            terrain = self.terrains.pop(entity)
+            terrain.get_root().remove_node()

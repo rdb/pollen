@@ -1,7 +1,8 @@
 from wecs.panda3d.core import ECSShowBase
-from .terrain import Terrain, TerrainSystem
-from .lighting import Sun, LightingSystem
 import simplepbr
+
+from .terrain import Terrain, TerrainObject, TerrainSystem
+from .lighting import Sun, LightingSystem
 
 
 class Game(ECSShowBase):
@@ -11,6 +12,8 @@ class Game(ECSShowBase):
 
         self.terrain = self.ecs_world.create_entity(Terrain(), name="Terrain")
         self.sun = self.ecs_world.create_entity(Sun())
+        self.player = self.ecs_world.create_entity(
+            TerrainObject(self.terrain, model='jack', position=(64, 64, 0)))
 
         self.add_system(TerrainSystem(), sort=0)
         self.add_system(LightingSystem(), sort=1)
