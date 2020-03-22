@@ -5,6 +5,7 @@ from direct.showbase.DirectObject import DirectObject
 from panda3d import core
 
 from .terrain import TerrainObject
+from .general import Speed
 
 import math
 
@@ -16,16 +17,13 @@ class Controls:
     right: str = 'raw-d'
 
     direction: float = 0.0
-    speed: float = 0.0
-    acceleration: float = 4.0
-    deceleration: float = 4.0
-    min_speed: float = 1.0
-    max_speed: float = 5.0
+    acceleration: float = 3.0
+    deceleration: float = 3.0
 
 
 class PlayerController(System, DirectObject):
     entity_filters = {
-        'player': and_filter([Controls, TerrainObject]),
+        'player': and_filter([Controls, TerrainObject, Speed]),
     }
 
     def __init__(self):
@@ -50,22 +48,17 @@ class PlayerController(System, DirectObject):
         for entity in entities_by_filter['player']:
             obj = entity[TerrainObject]
             controls = entity[Controls]
+            speed = entity[Speed]
 
-            dt = globalClock.dt
             if controls._states['forward']:
-                controls.speed += controls._states['forward'] * controls.acceleration * dt
+                speed.accelerate(controls._states['forward'] * controls.acceleration)
             else:
-                controls.speed -= controls.deceleration * dt
-
-            if controls.speed > controls.max_speed:
-                controls.speed = controls.max_speed
-            elif controls.speed < controls.min_speed:
-                controls.speed = controls.min_speed
+                speed.accelerate(-controls.deceleration)
 
             dir_rad = math.radians(controls.direction)
-
+            dt = globalClock.dt
             obj.position = (
-                obj.position[0] + math.sin(dir_rad) * controls.speed * dt,
-                obj.position[1] + math.cos(dir_rad) * controls.speed * dt,
+                obj.position[0] + math.sin(dir_rad) * speed.current * dt,
+                obj.position[1] + math.cos(dir_rad) * speed.current * dt,
                 obj.position[2],
             )

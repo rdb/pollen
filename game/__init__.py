@@ -6,6 +6,7 @@ from .controls import Controls, PlayerController
 from .terrain import Terrain, TerrainObject, TerrainSystem
 from .lighting import Sun, LightingSystem
 from .camera import Camera, CameraSystem
+from .general import Speed
 
 
 class Game(ECSShowBase):
@@ -17,7 +18,9 @@ class Game(ECSShowBase):
         self.sun = self.ecs_world.create_entity(Sun())
         self.player = self.ecs_world.create_entity(
             TerrainObject(self.terrain, model='jack', position=(64, 64, 0.5), scale=0.5),
-            Controls())
+            Controls(),
+            Speed(min=1.0, max=5.0),
+        )
 
         self.camera = self.ecs_world.create_entity(
             Camera(target=self.player),
