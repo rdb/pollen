@@ -28,6 +28,7 @@ class TerrainObject:
     terrain: Entity
     model: core.NodePath = None
     position: tuple = (0, 0, 0)
+    scale: float = 1.0
 
 
 class TerrainSystem(System):
@@ -97,7 +98,7 @@ class TerrainSystem(System):
         obj = entity[TerrainObject]
 
         path = base.render.attach_new_node(entity._uid.name)
-        self.objects[entity] = path
+        obj._root = path
 
         if obj.model:
             model = loader.load_model(obj.model)
@@ -105,16 +106,18 @@ class TerrainSystem(System):
 
     def update(self, entities_by_filter):
         for entity in entities_by_filter['object']:
-            component = entity[TerrainObject]
-            pos = component.position
+            obj = entity[TerrainObject]
+            pos = obj.position
 
-            res = component.terrain[Terrain].resolution
-            terrain = self.terrains[component.terrain]
+            res = obj.terrain[Terrain].resolution
+            terrain = self.terrains[obj.terrain]
             z = terrain.get_elevation(pos[0] * res, pos[1] * res)
-            path = self.objects[entity]
-            path.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
+            obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
+            obj._root.set_scale(obj.scale)
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':
             terrain = self.terrains.pop(entity)
             terrain.get_root().remove_node()
+        elif filter_name == 'object':
+            entity[TerrainObject]._root.remove_node()
