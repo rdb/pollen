@@ -16,9 +16,11 @@ class Controls:
     left: str = 'raw-a'
     right: str = 'raw-d'
 
-    direction: float = 0.0
     acceleration: float = 3.0
     deceleration: float = 3.0
+
+    # degrees per second
+    turn_speed: float = 45.0
 
 
 class PlayerController(System, DirectObject):
@@ -31,16 +33,22 @@ class PlayerController(System, DirectObject):
 
     def init_entity(self, filter_name, entity):
         controls = entity[Controls]
-        controls._states = {'forward': 0.0}
+        controls._states = {}
 
-        self.accept(controls.forward, self.button_pressed, [entity, 'forward'])
-        self.accept(controls.forward + '-up', self.button_released, [entity, 'forward'])
+        for control in ('forward', 'left', 'right'):
+            controls._states[control] = 0.0
+            self.accept(getattr(controls, control), self._button_pressed, [entity, control])
+            self.accept(getattr(controls, control) + '-up', self._button_released, [entity, control])
 
-    def button_pressed(self, entity, action):
+    def destroy_entity(self, filter_name, entity):
+        controls = entity[Controls]
+        del controls._states
+
+    def _button_pressed(self, entity, action):
         controls = entity[Controls]
         controls._states[action] = 1.0
 
-    def button_released(self, entity, action):
+    def _button_released(self, entity, action):
         controls = entity[Controls]
         controls._states[action] = 0.0
 
@@ -55,10 +63,13 @@ class PlayerController(System, DirectObject):
             else:
                 speed.accelerate(-controls.deceleration)
 
-            dir_rad = math.radians(controls.direction)
             dt = globalClock.dt
+            turn = controls._states['right'] - controls._states['left']
+            obj.direction -= turn * controls.turn_speed * dt
+
+            dir_rad = math.radians(obj.direction)
             obj.position = (
-                obj.position[0] + math.sin(dir_rad) * speed.current * dt,
+                obj.position[0] - math.sin(dir_rad) * speed.current * dt,
                 obj.position[1] + math.cos(dir_rad) * speed.current * dt,
                 obj.position[2],
             )

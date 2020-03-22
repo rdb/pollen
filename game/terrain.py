@@ -29,6 +29,7 @@ class TerrainObject:
     model: core.NodePath = None
     position: tuple = (0, 0, 0)
     scale: float = 1.0
+    direction: float = 0.0
 
 
 class TerrainSystem(System):
@@ -114,6 +115,7 @@ class TerrainSystem(System):
             z = terrain.get_elevation(pos[0] * res, pos[1] * res)
             obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
             obj._root.set_scale(obj.scale)
+            obj._root.set_h(obj.direction)
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':
