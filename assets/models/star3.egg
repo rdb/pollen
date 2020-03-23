@@ -1,0 +1,202 @@
+<CoordinateSystem> { Z-Up }
+
+<Comment> {
+  "obj2egg /home/rdb/star.obj -o star.egg"
+}
+
+<Texture> tuft0 {
+  "../textures/tuft0.png"
+  <Scalar> wrapu { clamp }
+  <Scalar> wrapv { clamp }
+  <Scalar> envtype { modulate }
+  <Scalar> alpha { binary }
+}
+
+<Texture> tuft1 {
+  "../textures/tuft1.png"
+  <Scalar> wrapu { clamp }
+  <Scalar> wrapv { clamp }
+  <Scalar> envtype { modulate }
+  <Scalar> alpha { binary }
+}
+
+<Texture> tuft2 {
+  "../textures/tuft2.png"
+  <Scalar> wrapu { clamp }
+  <Scalar> wrapv { clamp }
+  <Scalar> envtype { modulate }
+  <Scalar> alpha { binary }
+}
+
+<VertexPool> vpool {
+  <Vertex> 0 {
+    0 -1 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 1 {
+    0 -1 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 2 {
+    0 1 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 3 {
+    0 1 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 4 {
+    0.866025 -0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 5 {
+    0.866025 -0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 6 {
+    -0.866025 0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 7 {
+    -0.866025 0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 8 {
+    0.866025 0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 9 {
+    0.866025 0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 10 {
+    -0.866025 -0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 11 {
+    -0.866025 -0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 12 {
+    0 -1 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 13 {
+    0 1 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 14 {
+    0 1 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 15 {
+    0 -1 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 16 {
+    0.866025 -0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 17 {
+    -0.866025 0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 18 {
+    -0.866025 0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 19 {
+    0.866025 -0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 20 {
+    0.866025 0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 1 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 21 {
+    -0.866025 -0.5 1.5
+    <RGBA> { 1 1 1 1 }
+    <UV> { 0 0.75 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 22 {
+    -0.866025 -0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 0 0 }
+    <Normal> { 0 0 1 }
+  }
+  <Vertex> 23 {
+    0.866025 0.5 0
+    <RGBA> { 0 0 0 1 }
+    <UV> { 1 0 }
+    <Normal> { 0 0 1 }
+  }
+}
+<Group> root {
+  <Polygon> {
+    <VertexRef> { 0 1 2 3 <Ref> { vpool } }
+    <TRef> { tuft0 }
+  }
+  <Polygon> {
+    <VertexRef> { 12 13 14 15 <Ref> { vpool } }
+    <TRef> { tuft0 }
+  }
+  <Polygon> {
+    <VertexRef> { 4 5 6 7 <Ref> { vpool } }
+    <TRef> { tuft1 }
+  }
+  <Polygon> {
+    <VertexRef> { 16 17 18 19 <Ref> { vpool } }
+    <TRef> { tuft1 }
+  }
+  <Polygon> {
+    <VertexRef> { 8 9 10 11 <Ref> { vpool } }
+    <TRef> { tuft2 }
+  }
+  <Polygon> {
+    <VertexRef> { 20 21 22 23 <Ref> { vpool } }
+    <TRef> { tuft2 }
+  }
+}

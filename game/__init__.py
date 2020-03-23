@@ -17,13 +17,15 @@ class Game(ECSShowBase):
         self.terrain = self.ecs_world.create_entity(Terrain(), name="Terrain")
         self.sun = self.ecs_world.create_entity(Sun())
         self.player = self.ecs_world.create_entity(
-            TerrainObject(self.terrain, model='jack', position=(64, 64, 0.5), scale=0.5),
+            TerrainObject(self.terrain, model='jack', position=(64, 64, 1), scale=0.5),
             Controls(),
-            Speed(min=1.0, max=5.0),
+            Speed(min=0.0, max=5.0),
+            name="player",
         )
 
         self.camera = self.ecs_world.create_entity(
             Camera(target=self.player),
+            name="camera",
         )
 
         self.add_system(PlayerController(), sort=-1)

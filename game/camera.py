@@ -18,8 +18,8 @@ class Camera:
     target: Entity
     distance: float = 5.0
     elevation: float = 2.5
-    fov: float = 70
-    fast_fov: float = 90
+    fov: float = 90
+    fast_fov: float = 110
 
 
 class CameraSystem(System):

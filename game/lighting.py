@@ -9,7 +9,7 @@ import math
 class Sun:
     azimuth: float = 90
     elevation: float = 45
-    color_temperature: float = 6000
+    color_temperature: float = 6500
     intensity: float = 5
 
 
