@@ -7,15 +7,16 @@ uniform mat4 p3d_ProjectionMatrix;
 uniform mat3 p3d_NormalMatrix;
 
 attribute vec4 p3d_Vertex;
-attribute vec4 p3d_Color;
 attribute vec4 p3d_Tangent;
 attribute vec2 p3d_MultiTexCoord0;
 
 uniform float osg_FrameTime;
 
+uniform vec2 player;
 uniform vec3 scale;
 uniform sampler2D heightfield;
 uniform sampler2D normal;
+uniform sampler2D windmap;
 
 varying vec3 v_position;
 varying vec4 v_color;
@@ -28,17 +29,35 @@ void main() {
     float hval = texture2D(heightfield, wspos.xy * scale.xy).r;
     wspos.z += hval * scale.z;
 
-    float t = 0.5 * p3d_Vertex.z;
-    float wind = texture2D(heightfield, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
+    float t = p3d_MultiTexCoord0.y;
+    float wind = texture2D(windmap, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
     float wind_offset = wind * (t * t) * 5;
-    wspos.x += wind_offset;
 
-    v_position = vec3(p3d_ViewMatrix * vec4(wspos, 1));
-    v_color = p3d_Color;
+    v_color.r = min(1.0, t * 1.5);
     v_color.g = hval;
+    v_color.a = 1;
 
     vec3 normal = texture2D(normal, wspos.xy * scale.xy).xyz * 2.0 - 1.0;
-    normal.x += wind_offset;
+
+    vec2 delta = wspos.xy - player;
+    delta.y *= 0.13;
+    float dist = length(delta);
+    if (dist < 3) {
+        delta = normalize(delta);
+        wspos.xy += delta * ((t * t) * ((3 - (dist - 0.75)) / 1.5));
+        wspos.x += wind_offset * (dist / 3);
+
+        // Hide grass too close to player
+        if (dist < 0.75) {
+            v_color.a = dist / 0.75;
+        }
+    } else {
+        wspos.x += wind_offset;
+        normal.x += wind_offset * 0.8;
+    }
+
+    v_position = vec3(p3d_ViewMatrix * vec4(wspos, 1));
+
 
     v_normal = normalize((p3d_ViewMatrix * vec4(normal, 0)).xyz);
     v_texcoord = p3d_MultiTexCoord0;

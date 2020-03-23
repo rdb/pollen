@@ -11,7 +11,7 @@ class Terrain:
     # pixels per meter, should be power of 2
     resolution: float = 1
 
-    size: float = 128
+    size: float = 256
     seed: int = 100
     octaves: tuple = (
         # bump height, bump width in metres
@@ -109,8 +109,8 @@ class TerrainSystem(System):
         terrain.generate()
 
         mat = core.Material()
-        mat.base_color = (0.198, 0.223, 0.076, 1)
-        mat.roughness = 0.9
+        mat.base_color = (0.16, 0.223, 0.076, 1)
+        mat.roughness = 0
         root.set_material(mat)
 
         grass_root = render.attach_new_node("grass")
@@ -118,6 +118,7 @@ class TerrainSystem(System):
         grass_root.set_shader_input("scale", component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
         grass_root.set_shader_input("heightfield", htex)
         grass_root.set_shader_input("normal", ntex)
+        grass_root.set_shader_input("windmap", loader.load_texture("assets/textures/wind.png"))
         grass_root.set_material(mat)
 
         grass_root.set_bin('background', 10)
@@ -125,6 +126,8 @@ class TerrainSystem(System):
         patch = loader.load_model("assets/models/patch.bam")
         patch_size = int(patch.get_tag('patch_size'))
         self._r_build_grass_octree(grass_root, patch, patch_size, component.size)
+
+        component._grass_root = grass_root
 
         self.terrains[entity] = terrain
 
@@ -181,6 +184,9 @@ class TerrainSystem(System):
             obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
             obj._root.set_scale(obj.scale)
             obj._root.set_h(obj.direction)
+
+            if entity._uid.name == "player": #haack
+                obj.terrain[Terrain]._grass_root.set_shader_input("player", pos[0], pos[1])
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':

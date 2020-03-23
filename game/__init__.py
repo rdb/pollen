@@ -17,9 +17,9 @@ class Game(ECSShowBase):
         self.terrain = self.ecs_world.create_entity(Terrain(), name="Terrain")
         self.sun = self.ecs_world.create_entity(Sun())
         self.player = self.ecs_world.create_entity(
-            TerrainObject(self.terrain, model='jack', position=(64, 64, 1), scale=0.5),
+            TerrainObject(self.terrain, model='jack', position=(128, 64, 1.5), scale=0.5),
             Controls(),
-            Speed(min=0.0, max=5.0),
+            Speed(min=3.0, max=5.0),
             name="player",
         )
 
@@ -35,15 +35,16 @@ class Game(ECSShowBase):
 
         self.disable_mouse()
         self.set_main_camera(self.camera)
+        simplepbr.init(msaa_samples=0, max_lights=1)
 
     def set_main_camera(self, entity):
         path = entity[Camera]._root
         base.cam = path
         base.camLens = path.node().get_lens()
         self.win.display_regions[1].set_camera(path)
-        simplepbr.init(msaa_samples=0, max_lights=1)
 
 
 def main():
     game = Game()
+    #game.movie(duration=15, fps=30)
     game.run()

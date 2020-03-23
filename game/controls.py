@@ -14,6 +14,7 @@ import math
 class Controls:
     forward: str = 'raw-w'
     left: str = 'raw-a'
+    backward: str = 'raw-s'
     right: str = 'raw-d'
 
     acceleration: float = 3.0
@@ -35,7 +36,7 @@ class PlayerController(System, DirectObject):
         controls = entity[Controls]
         controls._states = {}
 
-        for control in ('forward', 'left', 'right'):
+        for control in ('forward', 'backward', 'left', 'right'):
             controls._states[control] = 0.0
             self.accept(getattr(controls, control), self._button_pressed, [entity, control])
             self.accept(getattr(controls, control) + '-up', self._button_released, [entity, control])
@@ -58,8 +59,8 @@ class PlayerController(System, DirectObject):
             controls = entity[Controls]
             speed = entity[Speed]
 
-            if controls._states['forward']:
-                speed.accelerate(controls._states['forward'] * controls.acceleration)
+            if controls._states['forward'] or controls._states['backward']:
+                speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
             else:
                 speed.accelerate(-controls.deceleration)
 

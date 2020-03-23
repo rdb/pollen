@@ -8,7 +8,7 @@ assets_dir = Filename(ExecutionEnvironment.expand_string("$MAIN_DIR/../assets"))
 def generate(size, density, min_scale=1.0, max_scale=1.0):
     root = NodePath("patch")
 
-    model = NodePath(ModelPool.load_model(Filename(assets_dir, "models/star3.egg")))
+    model = NodePath(ModelPool.load_model(Filename(assets_dir, "models/star3-sub.egg")))
     model.clear_model_nodes()
     model.flatten_strong()
 
@@ -17,12 +17,23 @@ def generate(size, density, min_scale=1.0, max_scale=1.0):
 
     for x in range(dimension):
         for y in range(dimension):
+            cm = CardMaker("ground")
+            cm.set_frame(
+                ((x - 0.5) * spacing, (y - 0.5) * spacing, 0),
+                ((x + 0.5) * spacing, (y - 0.5) * spacing, 0),
+                ((x + 0.5) * spacing, (y + 0.5) * spacing, 0),
+                ((x - 0.5) * spacing, (y + 0.5) * spacing, 0),
+            )
+            cm.set_uv_range((0, 0), (1, 0))
+            #root.attach_new_node(cm.generate())
+
             inst = model.copy_to(root)
             inst.set_pos((x + random() - 0.5) * spacing, (y + random() - 0.5) * spacing, 0)
             inst.set_h(random() * 360)
 
             t = random()
             inst.set_scale(min_scale * t + max_scale * (1 - t))
+            inst.set_sz(inst.get_sz() * 1.5)
 
     root.flatten_strong()
     root = root.find("**/+GeomNode")

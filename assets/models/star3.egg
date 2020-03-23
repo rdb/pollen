@@ -1,9 +1,5 @@
 <CoordinateSystem> { Z-Up }
 
-<Comment> {
-  "obj2egg /home/rdb/star.obj -o star.egg"
-}
-
 <Texture> tuft0 {
   "../textures/tuft0.png"
   <Scalar> wrapu { clamp }

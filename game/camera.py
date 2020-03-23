@@ -16,9 +16,9 @@ def smoothstep(x):
 @Component()
 class Camera:
     target: Entity
-    distance: float = 5.0
-    elevation: float = 2.5
-    fov: float = 90
+    distance: float = 7.0
+    elevation: float = 5
+    fov: float = 100
     fast_fov: float = 110
 
 

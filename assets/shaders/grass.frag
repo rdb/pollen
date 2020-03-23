@@ -93,9 +93,8 @@ vec3 diffuse_function(FunctionParamters func_params) {
 }
 
 void main() {
-    vec4 metal_rough = texture2D(p3d_TextureMetalRoughness, v_texcoord);
-    float metallic = clamp(p3d_Material.metallic * metal_rough.b, 0.0, 1.0);
-    float perceptual_roughness = clamp(p3d_Material.roughness * metal_rough.g,  0.0, 1.0);
+    float metallic = clamp(p3d_Material.metallic, 0.0, 1.0);
+    float perceptual_roughness = clamp(p3d_Material.roughness,  0.0, 1.0);
     float alpha_roughness = perceptual_roughness * perceptual_roughness;
     vec4 base_color = p3d_Material.baseColor * texture2D(p3d_TextureBaseColor, v_texcoord);
 
@@ -146,6 +145,7 @@ void main() {
     //}
 
     color.rgb += p3d_LightModel.ambient.rgb;
+    color.a *= v_color.a;
 
     gl_FragColor = color;
 }
