@@ -1,7 +1,11 @@
 from wecs.core import Entity, Component, System
 from wecs.core import and_filter
 
+from direct.actor.Actor import Actor
 from panda3d import core
+
+from .animation import Character
+from .general import Speed
 
 from dataclasses import field
 
@@ -30,6 +34,9 @@ class TerrainObject:
     position: tuple = (0, 0, 0)
     scale: float = 1.0
     direction: float = 0.0
+    material: core.Material = None
+    path: str = None
+    shadeless: bool = False
 
 
 class TerrainSystem(System):
@@ -180,6 +187,26 @@ class TerrainSystem(System):
 
         if obj.model:
             model = loader.load_model(obj.model)
+
+            if obj.path:
+                model = model.find(obj.path)
+                model.clear_transform()
+
+            if model.find("**/+Character"):
+                if Character in entity:
+                    model = Actor(obj.model)
+                    char = entity[Character]
+                    char._actor = model
+                    model.set_transparency(1)
+
+                    for part, joints in char.subparts.items():
+                        char._actor.make_subpart(part, joints)
+
+                    if obj.shadeless:
+                        model.set_light_off(1)
+
+            if obj.material:
+                model.set_material(obj.material, 1)
             model.reparent_to(path)
 
     def update(self, entities_by_filter):
@@ -191,11 +218,24 @@ class TerrainSystem(System):
             terrain = self.terrains[obj.terrain]
             z = terrain.get_elevation(pos[0] * res, pos[1] * res)
             obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
-            obj._root.set_scale(obj.scale)
+            obj._root.get_child(0).set_scale(obj.scale)
             obj._root.set_h(obj.direction)
 
+            for tex in obj._root.find_all_textures():
+                tex.wrap_u = core.SamplerState.WM_clamp
+                tex.wrap_v = core.SamplerState.WM_clamp
+
+            #obj._root.set_texture_off(10)
+
             if entity._uid.name == "player": #haack
-                obj.terrain[Terrain]._grass_root.set_shader_input("player", pos[0], pos[1])
+                t = 0
+                if Speed in entity:
+                    speed = entity[Speed]
+                    if speed.max is not None:
+                        #t = (speed.current - speed.min) / (speed.max - speed.min)
+                        t = speed.current / speed.max
+
+                obj.terrain[Terrain]._grass_root.set_shader_input("player", pos[0], pos[1], t)
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':

@@ -17,8 +17,8 @@ class Controls:
     backward: str = 'raw-s'
     right: str = 'raw-d'
 
-    acceleration: float = 3.0
-    deceleration: float = 3.0
+    acceleration: float = 1.0
+    deceleration: float = 2.0
 
     # degrees per second
     turn_speed: float = 45.0

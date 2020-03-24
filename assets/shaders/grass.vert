@@ -11,7 +11,7 @@ attribute vec2 p3d_MultiTexCoord0;
 
 uniform float osg_FrameTime;
 
-uniform vec2 player;
+uniform vec3 player;
 uniform vec3 scale;
 uniform sampler2D terrainmap;
 uniform sampler2D windmap;
@@ -37,22 +37,25 @@ void main() {
     v_color.g = hval;
     v_color.a = 1;
 
-    vec2 delta = wspos.xy - player;
+    vec2 shove = vec2(0);
+    float factor = 0;
+
+    vec2 delta = wspos.xy - player.xy;
     delta.y *= 0.13;
     float dist = length(delta);
     if (dist < 2.5) {
         delta = normalize(delta);
-        wspos.xy += delta * ((t * t) * ((3 - (dist - 0.75)) / 1.5));
-        wspos.x += wind_offset * (dist / 3);
+        shove = delta * ((t * t) * ((3 - (dist - 0.75)) / 1.5));
+        factor = (1.0 - (dist / 3)) * player.z;
 
         // Hide grass too close to player
         if (dist < 0.75) {
-            v_color.a = dist / 0.75;
+            v_color.a = mix(1, (dist / 0.75), player.z);
         }
-    } else {
-        wspos.x += wind_offset;
-        normal.x += wind_offset * 0.8;
     }
+
+    wspos.xy += mix(vec2(wind_offset, 0), shove, factor);
+    normal.x += mix(wind_offset * 0.8, 0, factor);
 
     wspos.z += hval * scale.z;
 

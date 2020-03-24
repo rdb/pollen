@@ -13,9 +13,16 @@ class Sun:
     intensity: float = 5
 
 
+@Component()
+class AmbientLight:
+    color: tuple
+    intensity: float = 1
+
+
 class LightingSystem(System):
     entity_filters = {
         'sun': and_filter([Sun]),
+        'ambient': and_filter([AmbientLight]),
     }
 
     def __init__(self):
@@ -29,6 +36,13 @@ class LightingSystem(System):
             light = core.DirectionalLight(entity._uid.name)
             path = base.render.attach_new_node(light)
             path.set_h(sun.azimuth)
+            self.lights[entity] = path
+
+        elif filter_name == 'ambient':
+            ambient = entity[AmbientLight]
+            light = core.AmbientLight(entity._uid.name)
+            light.color = core.LVecBase4(*ambient.color, 0) * ambient.intensity
+            path = base.render.attach_new_node(light)
             self.lights[entity] = path
 
         base.render.set_light(path)

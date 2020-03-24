@@ -3,6 +3,8 @@ frame-rate-meter-update-interval 0.5
 #want-pstats true
 #pstats-gpu-timing true
 
+model-path $MAIN_DIR/assets
+
 win-fixed-size true
 win-size 1024 768
 
