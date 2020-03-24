@@ -6,6 +6,7 @@
   <Scalar> wrapv { clamp }
   <Scalar> envtype { modulate }
   <Scalar> alpha { binary }
+  <Scalar> minfilter { linear-mipmap-linear }
 }
 
 <Texture> tuft1 {
@@ -14,6 +15,7 @@
   <Scalar> wrapv { clamp }
   <Scalar> envtype { modulate }
   <Scalar> alpha { binary }
+  <Scalar> minfilter { linear-mipmap-linear }
 }
 
 <Texture> tuft2 {
@@ -22,6 +24,7 @@
   <Scalar> wrapv { clamp }
   <Scalar> envtype { modulate }
   <Scalar> alpha { binary }
+  <Scalar> minfilter { linear-mipmap-linear }
 }
 
 <VertexPool> vpool {

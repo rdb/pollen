@@ -47,6 +47,7 @@ struct FunctionParamters {
 
 uniform sampler2D p3d_TextureBaseColor;
 uniform sampler2D p3d_TextureMetalRoughness;
+uniform vec4 p3d_ColorScale;
 
 const vec3 F0 = vec3(0.04);
 const float PI = 3.141592653589793;
@@ -93,10 +94,15 @@ vec3 diffuse_function(FunctionParamters func_params) {
 }
 
 void main() {
+    vec4 base_color = p3d_Material.baseColor * texture2D(p3d_TextureBaseColor, v_texcoord);
+
+    if (base_color.a < 0.5) {
+        discard;
+    }
+
     float metallic = clamp(p3d_Material.metallic, 0.0, 1.0);
     float perceptual_roughness = clamp(p3d_Material.roughness,  0.0, 1.0);
     float alpha_roughness = perceptual_roughness * perceptual_roughness;
-    vec4 base_color = p3d_Material.baseColor * texture2D(p3d_TextureBaseColor, v_texcoord);
 
     base_color.rgb *= v_color.g;
 
@@ -146,6 +152,7 @@ void main() {
 
     color.rgb += p3d_LightModel.ambient.rgb;
     color.a *= v_color.a;
+    color.a *= p3d_ColorScale.a;
 
     gl_FragColor = color;
 }

@@ -9,7 +9,7 @@ from dataclasses import field
 @Component()
 class Terrain:
     # pixels per meter, should be power of 2
-    resolution: float = 1
+    resolution: float = 1 / 2
 
     size: float = 256
     seed: int = 100
@@ -56,7 +56,7 @@ class TerrainSystem(System):
         noise = core.StackedPerlinNoise2()
 
         scaled_size = int(component.size * component.resolution)
-        heightmap_size = scaled_size + 1
+        heightmap_size = scaled_size# + 1
 
         print(f"Terrain complexity: {scaled_size}")
 
@@ -76,18 +76,26 @@ class TerrainSystem(System):
 
         htex = core.Texture("height")
         htex.load(heightfield)
+        #htex.minfilter = core.SamplerState.FT_linear_mipmap_linear
 
         # Don't clamp this!  We also use it for wind
         #htex.wrap_u = core.SamplerState.WM_clamp
         #htex.wrap_v = core.SamplerState.WM_clamp
 
+        # We use GeoMipTerrain just for determining the normals at the moment.
+        heightfield2 = core.PNMImage(heightmap_size + 1, heightmap_size + 1, 1)
+        heightfield2.set_maxval(0xffff)
+        heightfield2.copy_sub_image(heightfield, 0, 0)
+
         terrain = core.GeoMipTerrain(entity._uid.name)
-        terrain.set_heightfield(heightfield)
+        terrain.set_heightfield(heightfield2)
         terrain.set_bruteforce(True)
         terrain.set_block_size(min(32, scaled_size))
         #terrain.set_color_map(heightfield)
 
-        nimg = core.PNMImage(heightmap_size, heightmap_size, 3)
+        # Store both height and normal in the same texture.
+        nimg = core.PNMImage(heightmap_size, heightmap_size, 4, color_space=core.CS_linear)
+
         for x in range(heightmap_size):
             for y in range(heightmap_size):
                 normal = terrain.get_normal(x, y)
@@ -96,6 +104,8 @@ class TerrainSystem(System):
                 normal.z /= max_mag
                 normal.normalize()
                 nimg.set_xel(x, y, normal * 0.5 + 0.5)
+                #nimg.set_alpha(x, y, terrain.get_elevation(x, y))
+                nimg.set_alpha(x, y, heightfield.get_gray(x, y))
 
         ntex = core.Texture("normal")
         ntex.load(nimg)
@@ -104,20 +114,19 @@ class TerrainSystem(System):
 
         root = terrain.get_root()
         root.set_scale(1.0 / component.resolution, 1.0 / component.resolution, max_mag)
-        root.reparent_to(base.render)
-        root.set_texture(htex)
-        terrain.generate()
+        #root.reparent_to(base.render)
+        #root.set_texture(htex)
+        #terrain.generate()
 
         mat = core.Material()
         mat.base_color = (0.16, 0.223, 0.076, 1)
         mat.roughness = 0
-        root.set_material(mat)
+        #root.set_material(mat)
 
         grass_root = render.attach_new_node("grass")
         grass_root.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/grass.vert", "assets/shaders/grass.frag"), 10)
         grass_root.set_shader_input("scale", component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
-        grass_root.set_shader_input("heightfield", htex)
-        grass_root.set_shader_input("normal", ntex)
+        grass_root.set_shader_input("terrainmap", ntex)
         grass_root.set_shader_input("windmap", loader.load_texture("assets/textures/wind.png"))
         grass_root.set_material(mat)
 
