@@ -106,7 +106,7 @@ void main() {
 
     base_color.rgb *= v_color.g;
 
-    base_color.rgb *= v_color.r * 1.0 + 1.0;
+    base_color.rgb *= v_color.r * vec3(1.6, 1.6, 0.4) + 1.0;
 
     vec3 diffuse_color = (base_color.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = mix(F0, base_color.rgb, metallic);
