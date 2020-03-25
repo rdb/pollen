@@ -34,7 +34,7 @@ void main() {
     float wind_offset = wind * (t * t) * 5;
 
     v_color.r = min(1.0, t * 1.5);
-    v_color.g = hval;
+    v_color.g = hval * 0.333 + 0.333;
     v_color.a = 1;
 
     vec2 shove = vec2(0);

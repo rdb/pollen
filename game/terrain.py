@@ -130,11 +130,17 @@ class TerrainSystem(System):
         mat.roughness = 0
         #root.set_material(mat)
 
+        component._wind_map = loader.load_texture("assets/textures/wind.png")
+        component._wind_sound = loader.load_sfx("assets/sfx/wind-low.ogg")
+        component._wind_scale = (component.resolution / scaled_size) * 4
+        component._wind_sound.set_loop(True)
+        component._wind_sound.play()
+
         grass_root = render.attach_new_node("grass")
         grass_root.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/grass.vert", "assets/shaders/grass.frag"), 10)
         grass_root.set_shader_input("scale", component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
         grass_root.set_shader_input("terrainmap", ntex)
-        grass_root.set_shader_input("windmap", loader.load_texture("assets/textures/wind.png"))
+        grass_root.set_shader_input("windmap", component._wind_map)
         grass_root.set_material(mat)
 
         grass_root.set_bin('background', 10)
@@ -214,7 +220,8 @@ class TerrainSystem(System):
             obj = entity[TerrainObject]
             pos = obj.position
 
-            res = obj.terrain[Terrain].resolution
+            component = obj.terrain[Terrain]
+            res = component.resolution
             terrain = self.terrains[obj.terrain]
             z = terrain.get_elevation(pos[0] * res, pos[1] * res)
             obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
@@ -236,6 +243,16 @@ class TerrainSystem(System):
                         t = speed.current / speed.max
 
                 obj.terrain[Terrain]._grass_root.set_shader_input("player", pos[0], pos[1], t)
+
+                wspos = base.cam.get_pos(render).xy
+                peeker = component._wind_map.peek()
+                wind_coord = core.Vec2(pos[0], pos[1]) * component._wind_scale + core.Vec2(globalClock.frame_time * 0.06, 0)
+                wind = core.LColor()
+                peeker.lookup(wind, wind_coord.x, wind_coord.y)
+                #wind = max(1.0 - wind.x - 0.5, 0.0) + 0.5
+                wind = abs(1.0 - wind.x - 0.5) + 0.5
+                component._wind_sound.set_play_rate(wind * 2 + 0.5)
+                component._wind_sound.set_volume(max(0, wind - 0.35))
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':

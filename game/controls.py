@@ -17,11 +17,13 @@ class Controls:
     backward: str = 'raw-s'
     right: str = 'raw-d'
 
-    acceleration: float = 1.0
+    acceleration: float = 3.0
     deceleration: float = 2.0
 
     # degrees per second
     turn_speed: float = 45.0
+
+    enabled: bool = True
 
 
 class PlayerController(System, DirectObject):
@@ -59,10 +61,11 @@ class PlayerController(System, DirectObject):
             controls = entity[Controls]
             speed = entity[Speed]
 
-            if controls._states['forward'] or controls._states['backward']:
-                speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
-            else:
-                speed.accelerate(-controls.deceleration)
+            if controls.enabled:
+                if controls._states['forward'] or controls._states['backward']:
+                    speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
+                else:
+                    speed.accelerate(-controls.deceleration)
 
             dt = globalClock.dt
             turn = controls._states['right'] - controls._states['left']
