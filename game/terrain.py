@@ -48,7 +48,6 @@ class TerrainSystem(System):
     def __init__(self):
         System.__init__(self)
 
-        self.terrains = {}
         self.objects = {}
 
     def init_entity(self, filter_name, entity):
@@ -81,14 +80,6 @@ class TerrainSystem(System):
         heightfield.perlin_noise_fill(noise)
         assert heightfield.is_grayscale()
 
-        htex = core.Texture("height")
-        htex.load(heightfield)
-        #htex.minfilter = core.SamplerState.FT_linear_mipmap_linear
-
-        # Don't clamp this!  We also use it for wind
-        #htex.wrap_u = core.SamplerState.WM_clamp
-        #htex.wrap_v = core.SamplerState.WM_clamp
-
         # We use GeoMipTerrain just for determining the normals at the moment.
         heightfield2 = core.PNMImage(heightmap_size + 1, heightmap_size + 1, 1)
         heightfield2.set_maxval(0xffff)
@@ -118,6 +109,8 @@ class TerrainSystem(System):
         ntex.load(nimg)
         ntex.wrap_u = core.SamplerState.WM_clamp
         ntex.wrap_v = core.SamplerState.WM_clamp
+        ntex.set_keep_ram_image(True)
+        component._peeker = ntex.peek()
 
         root = terrain.get_root()
         root.set_scale(1.0 / component.resolution, 1.0 / component.resolution, max_mag)
@@ -130,9 +123,10 @@ class TerrainSystem(System):
         mat.roughness = 0
         #root.set_material(mat)
 
+        component._scale = core.VBase3(component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
+
         component._wind_map = loader.load_texture("assets/textures/wind.png")
         component._wind_sound = loader.load_sfx("assets/sfx/wind-low.ogg")
-        component._wind_scale = (component.resolution / scaled_size) * 4
         component._wind_sound.set_loop(True)
         component._wind_sound.play()
 
@@ -150,8 +144,6 @@ class TerrainSystem(System):
         self._r_build_grass_octree(grass_root, patch, patch_size, component.size)
 
         component._grass_root = grass_root
-
-        self.terrains[entity] = terrain
 
     def _r_build_grass_octree(self, parent, patch, patch_size, total_size):
         num_patches = total_size // patch_size
@@ -222,9 +214,14 @@ class TerrainSystem(System):
 
             component = obj.terrain[Terrain]
             res = component.resolution
-            terrain = self.terrains[obj.terrain]
-            z = terrain.get_elevation(pos[0] * res, pos[1] * res)
-            obj._root.set_pos(pos[0], pos[1], pos[2] + z * terrain.get_root().get_sz())
+            col = core.LColor()
+            component._peeker.lookup_bilinear(
+                col,
+                pos[0] * component._scale.x,
+                pos[1] * component._scale.y,
+            )
+            height = col.w * component._scale.z
+            obj._root.set_pos(pos[0], pos[1], pos[2] + height)
             obj._root.get_child(0).set_scale(obj.scale)
             obj._root.set_h(obj.direction)
 
@@ -246,7 +243,7 @@ class TerrainSystem(System):
 
                 wspos = base.cam.get_pos(render).xy
                 peeker = component._wind_map.peek()
-                wind_coord = core.Vec2(pos[0], pos[1]) * component._wind_scale + core.Vec2(globalClock.frame_time * 0.06, 0)
+                wind_coord = core.Vec2(pos[0], pos[1]) * component._scale[0] * 4 + core.Vec2(globalClock.frame_time * 0.06, 0)
                 wind = core.LColor()
                 peeker.lookup(wind, wind_coord.x, wind_coord.y)
                 #wind = max(1.0 - wind.x - 0.5, 0.0) + 0.5
@@ -256,7 +253,6 @@ class TerrainSystem(System):
 
     def destroy_entity(self, filter_name, entity):
         if filter_name == 'terrain':
-            terrain = self.terrains.pop(entity)
-            terrain.get_root().remove_node()
+            pass
         elif filter_name == 'object':
             entity[TerrainObject]._root.remove_node()
