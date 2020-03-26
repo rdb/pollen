@@ -33,7 +33,7 @@ class Game(ECSShowBase):
         self.sun2 = self.ecs_world.create_entity(Sun(priority=0, azimuth=-90, elevation=20, intensity=0.5, color_temperature=10000))
         self.player = self.ecs_world.create_entity(
             #TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 64, 1), scale=0.09),
-            TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 64, 1), scale=0.2, shadeless=True, material=mat),
+            TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 60, 1), scale=0.2, shadeless=True, material=mat),
             Character(
                 play_rate=0.5,
                 state="fly",
