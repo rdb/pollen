@@ -4,6 +4,7 @@ frame-rate-meter-update-interval 0.5
 #pstats-gpu-timing true
 
 threading-model /Draw
+x-init-threads true
 
 model-path $MAIN_DIR/assets
 
