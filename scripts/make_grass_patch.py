@@ -93,6 +93,12 @@ if __name__ == '__main__':
     NodePath(lod).write_bam_file(Filename(assets_dir, "models/patch.bam"))
     print("Written to assets/models/patch.bam")
 
+    # Make a potato version.
+    size = 32
+    md = generate("star3.egg", size=size, ground_density=1.0, grass_density=1.0, min_scale=0.8*0.5, max_scale=1.2*0.5)
+    lo = generate("star3.egg", size=size, ground_density=0.75, grass_density=0.5, min_scale=0.8*0.5, max_scale=1.2*0.5)
+    no = generate("star3.egg", size=size, ground_density=0.5, grass_density=0)
+
     lod = FadeLODNode("patch")
     lod.add_child(no.node())
     lod.add_switch(1000, 64)
