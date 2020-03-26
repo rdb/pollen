@@ -7,6 +7,7 @@ from panda3d import core
 from .terrain import TerrainObject
 from .general import Speed
 from .animation import Character
+from .audio import Music
 
 import math
 
@@ -14,9 +15,6 @@ import math
 @Component()
 class Controls:
     forward: str = 'mouse1'
-    left: str = 'raw-a'
-    backward: str = 'raw-s'
-    right: str = 'raw-d'
 
     acceleration: float = 3.0
     deceleration: float = 2.0
@@ -43,7 +41,7 @@ class PlayerController(System, DirectObject):
         controls = entity[Controls]
         controls._states = {}
 
-        for control in ('forward', 'backward', 'left', 'right'):
+        for control in ('forward',):
             controls._states[control] = 0.0
             self.accept(getattr(controls, control), self._button_pressed, [entity, control])
             self.accept(getattr(controls, control) + '-up', self._button_released, [entity, control])
@@ -56,9 +54,15 @@ class PlayerController(System, DirectObject):
         controls = entity[Controls]
         controls._states[action] = 1.0
 
+        if action == 'forward':
+            base.music[Music].play('chase')
+
     def _button_released(self, entity, action):
         controls = entity[Controls]
         controls._states[action] = 0.0
+
+        if action == 'forward':
+            base.music[Music].play('peace')
 
     def update(self, entities_by_filter):
         for entity in entities_by_filter['player']:
@@ -85,13 +89,10 @@ class PlayerController(System, DirectObject):
             else:
                 self.last_ptr = None
 
-            if controls.enabled and (controls._states['forward'] or controls._states['backward']):
-                speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
+            if controls.enabled and controls._states['forward']:
+                speed.accelerate(controls._states['forward'] * controls.acceleration)
             else:
                 speed.accelerate(-controls.deceleration)
-
-            turn = controls._states['right'] - controls._states['left']
-            obj.direction -= turn * controls.turn_speed * dt
 
             dir_rad = math.radians(obj.direction)
             obj.position = (

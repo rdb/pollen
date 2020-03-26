@@ -300,7 +300,6 @@ class Game(ECSShowBase):
 
         self.accept('f12', self.screenshot)
         self.accept('1', self.oobeCull)
-        self.accept('2', self.music[Music].play, ["chase"])
         self.accept('p', self.print_pos)
 
         self.accept('player-into-flower', self.handle_collision)
