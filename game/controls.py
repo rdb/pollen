@@ -6,13 +6,14 @@ from panda3d import core
 
 from .terrain import TerrainObject
 from .general import Speed
+from .animation import Character
 
 import math
 
 
 @Component()
 class Controls:
-    forward: str = 'raw-w'
+    forward: str = 'mouse1'
     left: str = 'raw-a'
     backward: str = 'raw-s'
     right: str = 'raw-d'
@@ -21,7 +22,7 @@ class Controls:
     deceleration: float = 2.0
 
     # degrees per second
-    turn_speed: float = 45.0
+    turn_speed: float = 90
 
     enabled: bool = True
 
@@ -33,6 +34,10 @@ class PlayerController(System, DirectObject):
 
     def __init__(self):
         System.__init__(self)
+
+        self.last_ptr = None
+
+        base.win.request_properties(core.WindowProperties(mouse_mode=core.WindowProperties.M_confined))
 
     def init_entity(self, filter_name, entity):
         controls = entity[Controls]
@@ -61,13 +66,28 @@ class PlayerController(System, DirectObject):
             controls = entity[Controls]
             speed = entity[Speed]
 
-            if controls.enabled:
-                if controls._states['forward'] or controls._states['backward']:
-                    speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
-                else:
-                    speed.accelerate(-controls.deceleration)
-
             dt = globalClock.dt
+
+            ptr = base.win.get_pointer(0)
+            if ptr.in_window:
+                if self.last_ptr:
+                    lean = ptr.x - base.win.get_x_size() / 2
+                    lean_norm = lean / base.win.get_x_size()
+                    obj.direction -= lean_norm * controls.turn_speed * dt
+                    base.cam.set_x(lean_norm * 3)
+
+                    elevate = (ptr.y / base.win.get_y_size()) - 0.5
+                    base.cam.set_z(2.5 - elevate)
+
+                self.last_ptr = ptr
+            else:
+                self.last_ptr = None
+
+            if controls.enabled and (controls._states['forward'] or controls._states['backward']):
+                speed.accelerate((controls._states['forward'] - controls._states['backward']) * controls.acceleration)
+            else:
+                speed.accelerate(-controls.deceleration)
+
             turn = controls._states['right'] - controls._states['left']
             obj.direction -= turn * controls.turn_speed * dt
 

@@ -45,7 +45,7 @@ class Game(ECSShowBase):
                 },
             ),
             Controls(),
-            Speed(min=0.0, max=5.0),
+            Speed(min=3.0, max=5.0),
             Collider(solid=core.CollisionSphere((0, 0, 0), 1.0), from_mask=1, into_mask=0),
             name="player",
         )
@@ -82,7 +82,7 @@ class Game(ECSShowBase):
                     },
                 ),
                 SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'thorns'], volume=1000),
-                Collider(solid=core.CollisionSphere((0, 0, 1.25), 0.25)),
+                Collider(solid=core.CollisionSphere((0, 0, 1.25), 1)),
                 name="flower",
             )
             self.flowers.append(flower)
@@ -133,7 +133,7 @@ class Game(ECSShowBase):
         flower[Character].state = 'open'
         flower[SfxPlayer].play(choice(['flower-open-a', 'flower-open-b']))
 
-        self.player[Speed].current = 0.0
+        #self.player[Speed].current = 0.0
         #self.player[Controls].enabled = False
 
         #self.player[TerrainObject]._root.hprInterval(4, (360, 0, 0), blendType='easeInOut').start()
