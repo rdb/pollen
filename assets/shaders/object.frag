@@ -141,7 +141,8 @@ void main() {
         color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib);
     }
 
-    color.rgb = mix(fog_color, color.rgb, clamp(exp2(0.005 * (-v_position.z - 10) * -1.442695f), 0, 1));
+    //color.rgb = mix(fog_color, color.rgb, clamp(exp2(0.005 * (-v_position.z - 10) * -1.442695f), 0, 1));
+    color.rgb = mix(fog_color, color.rgb, clamp(exp2(0.0001 * (-v_position.z - 10) * (-v_position.z - 10) * -1.442695f), 0, 1));
 
     gl_FragColor = color;
 }

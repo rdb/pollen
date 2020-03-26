@@ -183,6 +183,8 @@ class Game(ECSShowBase):
             (137.43537002389613, 89.95124523848395, 0),
             (148.5603756930313, 117.4550714412239, 0),
             (138.37479640212072, 105.78828222093686, 0),
+            (182.3238016476745, 125.01421610660083, 0),
+            (205.3607911535825, 133.28229434734854, 0),
         ]:
             sub = choice([
                 '**/rock.000',
@@ -262,6 +264,8 @@ class Game(ECSShowBase):
             if pos[1] > 256 - 64:
                 tree_positions.append((pos[0], pos[1] - 256, 0))
 
+        tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
+
         self.trees = []
         for pos in tree_positions:
             sub = choice([
@@ -272,7 +276,7 @@ class Game(ECSShowBase):
             ])
             #pos = (pos[0], pos[1], -random())
             tree = self.ecs_world.create_entity(
-                TerrainObject(self.terrain, model='models/trees.bam', path=sub, scale=random()*0.5+0.5, position=pos, material=mat),
+                TerrainObject(self.terrain, model='models/trees.bam', path=sub, scale=random()*0.5+0.5, position=pos, material=mat, shader=tree_shader),
                 name="tree",
             )
             self.trees.append(tree)

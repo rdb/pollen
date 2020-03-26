@@ -37,6 +37,7 @@ class TerrainObject:
     material: core.Material = None
     path: str = None
     shadeless: bool = False
+    shader: core.Shader = None
 
 
 class TerrainSystem(System):
@@ -141,10 +142,10 @@ class TerrainSystem(System):
         component._wind_sound.play()
 
         grass_root = render.attach_new_node("grass")
-        grass_root.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/grass.vert", "assets/shaders/grass.frag"), 10)
-        grass_root.set_shader_input("scale", component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
+        grass_root.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/grass.vert", "assets/shaders/grass.frag"), 20)
+        render.set_shader_input("scale", component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
         grass_root.set_shader_input("terrainmap", ntex)
-        grass_root.set_shader_input("windmap", component._wind_map)
+        render.set_shader_input("windmap", component._wind_map)
         grass_root.set_material(mat)
 
         #grass_root.node().set_bounds(core.BoundingSphere())
@@ -233,6 +234,9 @@ class TerrainSystem(System):
 
             if obj.material:
                 model.set_material(obj.material, 1)
+
+            if obj.shader:
+                model.set_shader(obj.shader, 10)
             model.reparent_to(path)
 
         component = obj.terrain[Terrain]
