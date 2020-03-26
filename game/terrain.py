@@ -38,6 +38,7 @@ class TerrainObject:
     path: str = None
     shadeless: bool = False
     shader: core.Shader = None
+    wraparound: bool = False
 
 
 class TerrainSystem(System):
@@ -257,6 +258,46 @@ class TerrainSystem(System):
         for tex in obj._root.find_all_textures():
             tex.wrap_u = core.SamplerState.WM_clamp
             tex.wrap_v = core.SamplerState.WM_clamp
+
+        if obj.wraparound:
+            border = 120
+            if pos[0] < border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (256, 0, 0))
+            if pos[1] < border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (0, 256, 0))
+
+            if pos[0] > 256 - border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() - (256, 0, 0))
+            if pos[1] > 256 - border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() - (0, 256, 0))
+
+            if pos[0] < border and pos[1] < border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (256, 256, 0))
+
+            if pos[0] > 256 - border and pos[1] > 256 - border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (-256, -256, 0))
+
+            if pos[0] > 256 - border and pos[1] < border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (-256, 256, 0))
+
+            if pos[0] < border and pos[1] > 256 - border:
+                inst = model.instance_under_node(render, "wrap")
+                inst.set_transform(obj._root.get_transform())
+                inst.set_pos(inst.get_pos() + (256, -256, 0))
 
     def update(self, entities_by_filter):
         for entity in entities_by_filter['movable']:

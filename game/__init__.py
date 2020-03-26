@@ -220,7 +220,17 @@ class Game(ECSShowBase):
                 '**/rock.006',
             ])
             rock = self.ecs_world.create_entity(
-                TerrainObject(self.terrain, model='models/rocks.bam', path=sub, scale=random()*2+2, position=pos, direction=random()*360, material=mat),
+                TerrainObject(
+                    self.terrain,
+                    model='models/rocks.bam',
+                    path=sub,
+                    scale=random()*2+2,
+                    position=pos,
+                    direction=random()*360,
+                    material=mat,
+                    wraparound=True,
+                ),
+                name="rock",
             )
             self.rocks.append(rock)
 
@@ -283,33 +293,13 @@ class Game(ECSShowBase):
             (115.33554257802335, 235.12176260428103, 0),
             (188.00154226065294, 244.918254643617, 0),
         ]
-        tree_scales = [random()*0.5+0.5 for pos in tree_positions]
-        tree_directions = [random()*360 for dir in tree_positions]
-
-        # Hack to wrap around map
-        for pos, scale, dir in list(zip(tree_positions, tree_scales, tree_directions)):
-            if pos[0] < 64:
-                tree_positions.append((pos[0] + 256, pos[1], 0))
-                tree_scales.append(scale)
-                tree_directions.append(dir)
-            if pos[1] < 64:
-                tree_positions.append((pos[0], pos[1] + 256, 0))
-                tree_scales.append(scale)
-                tree_directions.append(dir)
-
-            if pos[0] > 256 - 64:
-                tree_positions.append((pos[0] - 256, pos[1], 0))
-                tree_scales.append(scale)
-                tree_directions.append(dir)
-            if pos[1] > 256 - 64:
-                tree_positions.append((pos[0], pos[1] - 256, 0))
-                tree_scales.append(scale)
-                tree_directions.append(dir)
 
         tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
 
         self.trees = []
-        for pos, scale, dir in zip(tree_positions, tree_scales, tree_directions):
+        for pos in tree_positions:
+            scale = random()*0.5+0.5
+            dir = random()*360
             sub = choice([
                 '**/tree',
                 '**/tree.001',
@@ -318,7 +308,17 @@ class Game(ECSShowBase):
             ])
             #pos = (pos[0], pos[1], -random())
             tree = self.ecs_world.create_entity(
-                TerrainObject(self.terrain, model='models/trees.bam', path=sub, scale=scale, position=pos, direction=dir, material=mat, shader=tree_shader),
+                TerrainObject(
+                    self.terrain,
+                    model='models/trees.bam',
+                    path=sub,
+                    scale=scale,
+                    position=pos,
+                    direction=dir,
+                    material=mat,
+                    shader=tree_shader,
+                    wraparound=True,
+                ),
                 name="tree",
             )
             self.trees.append(tree)
@@ -369,7 +369,7 @@ class Game(ECSShowBase):
 
     def print_pos(self):
         pos = self.player[TerrainObject].position
-        print('                ' + str((pos[0], pos[1], 0)) + ',')
+        print('            ' + str((pos[0], pos[1], 0)) + ',')
 
     def handle_collision(self, entry):
         flower = entry.into_node.get_python_tag('entity')

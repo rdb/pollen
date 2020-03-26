@@ -20,7 +20,7 @@ class Camera:
     elevation: float = 2.5
     fov: float = 80
     fast_fov: float = 110
-    far: float = 150
+    far: float = 128
 
 
 class CameraSystem(System):
