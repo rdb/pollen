@@ -252,22 +252,33 @@ class Game(ECSShowBase):
             (108.12901491632508, 21.768645663016716, 0),
             (120.74501892422101, 9.173819912513748, 0),
         ]
+        tree_scales = [random()*0.5+0.5 for pos in tree_positions]
+        tree_directions = [random()*360 for dir in tree_positions]
 
-        for pos in list(tree_positions):
+        # Hack to wrap around map
+        for pos, scale, dir in list(zip(tree_positions, tree_scales, tree_directions)):
             if pos[0] < 64:
                 tree_positions.append((pos[0] + 256, pos[1], 0))
+                tree_scales.append(scale)
+                tree_directions.append(dir)
             if pos[1] < 64:
                 tree_positions.append((pos[0], pos[1] + 256, 0))
+                tree_scales.append(scale)
+                tree_directions.append(dir)
 
             if pos[0] > 256 - 64:
                 tree_positions.append((pos[0] - 256, pos[1], 0))
+                tree_scales.append(scale)
+                tree_directions.append(dir)
             if pos[1] > 256 - 64:
                 tree_positions.append((pos[0], pos[1] - 256, 0))
+                tree_scales.append(scale)
+                tree_directions.append(dir)
 
         tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
 
         self.trees = []
-        for pos in tree_positions:
+        for pos, scale, dir in zip(tree_positions, tree_scales, tree_directions):
             sub = choice([
                 '**/tree',
                 '**/tree.001',
@@ -276,7 +287,7 @@ class Game(ECSShowBase):
             ])
             #pos = (pos[0], pos[1], -random())
             tree = self.ecs_world.create_entity(
-                TerrainObject(self.terrain, model='models/trees.bam', path=sub, scale=random()*0.5+0.5, position=pos, material=mat, shader=tree_shader),
+                TerrainObject(self.terrain, model='models/trees.bam', path=sub, scale=scale, position=pos, direction=dir, material=mat, shader=tree_shader),
                 name="tree",
             )
             self.trees.append(tree)
