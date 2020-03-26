@@ -92,3 +92,21 @@ if __name__ == '__main__':
 
     NodePath(lod).write_bam_file(Filename(assets_dir, "models/patch.bam"))
     print("Written to assets/models/patch.bam")
+
+    lod = FadeLODNode("patch")
+    lod.add_child(no.node())
+    lod.add_switch(1000, 64)
+
+    lod.add_child(lo.node())
+    lod.add_switch(64, 32)
+
+    lod.add_child(md.node())
+    lod.add_switch(32, 0)
+
+    lod.set_tag('patch_size', str(size))
+
+    sga = SceneGraphAnalyzer()
+    sga.add_node(lod)
+
+    NodePath(lod).write_bam_file(Filename(assets_dir, "models/patch-potato.bam"))
+    print("Written to assets/models/patch-potato.bam")
