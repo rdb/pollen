@@ -134,6 +134,7 @@ class AudioSystem(System):
         if new:
             new.play()
             music._active = new
+            music._prev_songs.discard(new)
 
         print("Changing music to", new_song)
 
