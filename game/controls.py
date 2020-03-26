@@ -78,6 +78,8 @@ class PlayerController(System, DirectObject):
 
                     elevate = (ptr.y / base.win.get_y_size()) - 0.5
                     base.cam.set_z(2.5 - elevate)
+                else:
+                    base.win.move_pointer(0, base.win.get_x_size() // 2, base.win.get_y_size() // 2)
 
                 self.last_ptr = ptr
             else:
