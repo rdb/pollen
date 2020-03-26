@@ -63,7 +63,7 @@ class Game(ECSShowBase):
         self.flowers = []
         for i in range(100):
             flower = self.ecs_world.create_entity(
-                TerrainObject(self.terrain, model='models/flower.bam', position=(random() * 256, random() * 256, 0), scale=0.5, material=mat),
+                TerrainObject(self.terrain, model='models/flower.bam', position=(random() * 256, random() * 256, 0), direction=random()*360, scale=0.5, material=mat),
                 Character(
                     state="closed",
                     states={
