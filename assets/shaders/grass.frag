@@ -2,16 +2,16 @@
 
 #version 120
 
-#define MAX_LIGHTS 1
+#define MAX_LIGHTS 2
 
-uniform struct {
+uniform struct p3d_MaterialParameters {
     vec4 baseColor;
     float roughness;
     float metallic;
     float refractiveIndex;
 } p3d_Material;
 
-uniform struct {
+uniform struct p3d_LightSourceParameters {
     vec4 position;
     vec4 diffuse;
     vec4 specular;
@@ -23,7 +23,7 @@ uniform struct {
     //mat4 shadowMatrix;
 } p3d_LightSource[MAX_LIGHTS];
 
-uniform struct {
+uniform struct p3d_LightModelParameters {
     vec4 ambient;
 } p3d_LightModel;
 
@@ -49,6 +49,10 @@ uniform sampler2D p3d_TextureBaseColor;
 uniform sampler2D p3d_TextureMetalRoughness;
 uniform vec4 p3d_ColorScale;
 
+//const vec3 fog_color = vec3(0.31, 0.42, 0.53);
+//const vec3 fog_color = vec3(0.6, 1.2, 1.4);
+const vec3 fog_color = vec3(0.8, 0.8, 0.9);
+
 const vec3 F0 = vec3(0.04);
 const float PI = 3.141592653589793;
 const float SPOTSMOOTH = 0.001;
@@ -70,13 +74,8 @@ float visibility_occlusion(FunctionParamters func_params) {
     float r2 = r * r;
     float n_dot_l = func_params.n_dot_l;
     float n_dot_v = func_params.n_dot_v;
-#ifdef SMITH_SQRT_APPROX
     float ggxv = n_dot_l * (n_dot_v * (1.0 - r) + r);
     float ggxl = n_dot_v * (n_dot_l * (1.0 - r) + r);
-#else
-    float ggxv = n_dot_l * sqrt(n_dot_v * n_dot_v * (1.0 - r2) + r2);
-    float ggxl = n_dot_v * sqrt(n_dot_l * n_dot_l * (1.0 - r2) + r2);
-#endif
 
     return max(0.0, 0.5 / (ggxv + ggxl));
 }
@@ -106,7 +105,7 @@ void main() {
 
     base_color.rgb *= v_color.g;
 
-    base_color.rgb *= v_color.r * vec3(1.6, 1.6, 0.4) + 1.0;
+    base_color.rgb *= v_color.r * vec3(10, 15, 8) + vec3(1, 1, 1);
 
     vec3 diffuse_color = (base_color.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = mix(F0, base_color.rgb, metallic);
@@ -116,8 +115,8 @@ void main() {
 
     vec4 color = vec4(vec3(0.0), base_color.a);
 
-    //for (int i = 0; i < p3d_LightSource.length(); ++i) {
-    const int i = 0;
+    for (int i = 0; i < MAX_LIGHTS; ++i) {
+    //const int i = 0;
         vec3 lightcol = p3d_LightSource[i].diffuse.rgb;
 
         //if (dot(lightcol, lightcol) < LIGHT_CUTOFF) {
@@ -147,12 +146,16 @@ void main() {
 
         vec3 diffuse_contrib = (1.0 - F) * diffuse_function(func_params);
         vec3 spec_contrib = vec3(F * V * D);
-        color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib);
-    //}
+        color.rgb += func_params.n_dot_l * lightcol * (diffuse_contrib + spec_contrib * 0.5);
+    }
 
-    color.rgb += p3d_LightModel.ambient.rgb;
+    //color.rgb += p3d_LightModel.ambient.rgb;
     color.a *= v_color.a;
+    color.rgb *= p3d_ColorScale.rgb;
     color.a *= p3d_ColorScale.a;
+
+    color.rgb = mix(fog_color, color.rgb, clamp(exp2(0.0001 * (-v_position.z - 10) * (-v_position.z - 10) * -1.442695f), 0, 1));
+    //color.rgb = mix(fog_color, color.rgb, clamp(exp2(0.005 * (-v_position.z - 10) * -1.442695f), 0, 1));
 
     gl_FragColor = color;
 }

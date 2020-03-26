@@ -22,7 +22,7 @@ class Controls:
     deceleration: float = 2.0
 
     # degrees per second
-    turn_speed: float = 90
+    turn_speed: float = 150
 
     enabled: bool = True
 
@@ -77,7 +77,7 @@ class PlayerController(System, DirectObject):
                     base.cam.set_x(lean_norm * 3)
 
                     elevate = (ptr.y / base.win.get_y_size()) - 0.5
-                    base.cam.set_z(2.5 - elevate)
+                    base.cam.set_z(0 - elevate)
                 else:
                     base.win.move_pointer(0, base.win.get_x_size() // 2, base.win.get_y_size() // 2)
 

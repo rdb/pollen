@@ -11,6 +11,7 @@ class Sun:
     elevation: float = 45
     color_temperature: float = 6500
     intensity: float = 5
+    priority: float = 0
 
 
 @Component()
@@ -34,6 +35,7 @@ class LightingSystem(System):
         if filter_name == 'sun':
             sun = entity[Sun]
             light = core.DirectionalLight(entity._uid.name)
+            light.priority = sun.priority
             path = base.render.attach_new_node(light)
             path.set_h(sun.azimuth)
             self.lights[entity] = path

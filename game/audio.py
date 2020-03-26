@@ -8,7 +8,7 @@ from .camera import Camera
 from .terrain import TerrainObject
 
 
-MUSIC_FADE_TIME = 1.0
+MUSIC_FADE_TIME = 2.0
 
 
 @Component()

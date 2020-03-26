@@ -20,6 +20,7 @@ class Camera:
     elevation: float = 2.5
     fov: float = 80
     fast_fov: float = 110
+    far: float = 150
 
 
 class CameraSystem(System):
@@ -34,10 +35,14 @@ class CameraSystem(System):
         camera = entity[Camera]
         target_obj = camera.target[TerrainObject]
 
-        cam_node = core.Camera(entity._uid.name)
+        #cam_node = core.Camera(entity._uid.name)
+        cam_node = base.cam.node()
         camera._lens = cam_node.get_lens()
         camera._lens.set_fov(camera.fov)
-        camera._root = target_obj._root.attach_new_node(cam_node)
+        camera._lens.set_far(camera.far)
+        #camera._root = target_obj._root.attach_new_node(cam_node)
+        camera._root = base.camera
+        camera._root.reparent_to(target_obj._root)
         camera._root.set_pos(0, -camera.distance, camera.elevation)
         camera._root.look_at(0, 0, 0)
 

@@ -43,6 +43,7 @@ class TerrainSystem(System):
     entity_filters = {
         'terrain': and_filter([Terrain]),
         'object': and_filter([TerrainObject]),
+        'movable': and_filter([TerrainObject, Speed]),
     }
 
     def __init__(self):
@@ -77,8 +78,10 @@ class TerrainSystem(System):
 
         heightfield = core.PNMImage(heightmap_size, heightmap_size, 1)
         heightfield.set_maxval(0xffff)
-        heightfield.perlin_noise_fill(noise)
-        assert heightfield.is_grayscale()
+        #heightfield.perlin_noise_fill(noise)
+        heightfield.read('assets/textures/heightmap.png')
+        #heightfield.make_grayscale()
+        #assert heightfield.is_grayscale()
 
         # We use GeoMipTerrain just for determining the normals at the moment.
         heightfield2 = core.PNMImage(heightmap_size + 1, heightmap_size + 1, 1)
@@ -107,8 +110,8 @@ class TerrainSystem(System):
 
         ntex = core.Texture("normal")
         ntex.load(nimg)
-        ntex.wrap_u = core.SamplerState.WM_clamp
-        ntex.wrap_v = core.SamplerState.WM_clamp
+        ntex.wrap_u = core.SamplerState.WM_repeat
+        ntex.wrap_v = core.SamplerState.WM_repeat
         ntex.set_keep_ram_image(True)
         component._peeker = ntex.peek()
 
@@ -119,8 +122,15 @@ class TerrainSystem(System):
         #terrain.generate()
 
         mat = core.Material()
-        mat.base_color = (0.16, 0.223, 0.076, 1)
-        mat.roughness = 0
+        #mat.base_color = (0.16, 0.223, 0.076, 1)
+        mat.base_color = (0.4, 0.6, 0.4, 1)
+        mat.base_color = (
+            41.6/255.0,
+            73.7/255.0,
+            29.0/255.0,
+            1)
+        #print(mat.base_color)
+        mat.roughness = 1
         #root.set_material(mat)
 
         component._scale = core.VBase3(component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
@@ -137,16 +147,21 @@ class TerrainSystem(System):
         grass_root.set_shader_input("windmap", component._wind_map)
         grass_root.set_material(mat)
 
+        #grass_root.node().set_bounds(core.BoundingSphere())
+        #grass_root.node().set_final(True)
+
         grass_root.set_bin('background', 10)
 
         patch = loader.load_model("assets/models/patch.bam")
         patch_size = int(patch.get_tag('patch_size'))
-        self._r_build_grass_octree(grass_root, patch, patch_size, component.size)
+
+        self._r_build_grass_octree(grass_root, patch, patch_size, component.size * 2)
+        grass_root.set_pos(-0.5 * component.size, -0.5 * component.size, 0)
 
         component._grass_root = grass_root
 
     def _r_build_grass_octree(self, parent, patch, patch_size, total_size):
-        num_patches = total_size // patch_size
+        num_patches = int(total_size // patch_size)
 
         if num_patches >= 4:
             half_size = total_size // 2
@@ -176,6 +191,8 @@ class TerrainSystem(System):
             for y in range(num_patches):
                 inst = patch.copy_to(parent)
                 inst.set_pos(x * patch_size, y * patch_size, 0)
+                #inst.node().set_final(True)
+                #inst.node().set_bounds(core.BoundingBox((x, y, 0), (x+patch_size, y+patch_size, 100)))
 
     def init_terrain_object(self, entity):
         obj = entity[TerrainObject]
@@ -190,6 +207,8 @@ class TerrainSystem(System):
                 model = model.find(obj.path)
                 model.clear_transform()
 
+            #model.flatten_strong()
+
             if model.find("**/+Character"):
                 if Character in entity:
                     model = Actor(obj.model)
@@ -200,34 +219,68 @@ class TerrainSystem(System):
                     for part, joints in char.subparts.items():
                         char._actor.make_subpart(part, joints)
 
-                    if obj.shadeless:
-                        model.set_light_off(1)
+                    #if obj.shadeless:
+                    #    model.set_light_off(1)
+
+            if 'flower' in obj.model:
+                mat = core.Material()
+                #mat.base_color = (0.3, 0.3, 2, 1)
+                mat.base_color = (2.0, 0.75, 0.6, 1)
+                model.find('**/petals').set_material(mat, 10000000)
+                model.find('**/petals').set_light_off(100)
+                model.find('**/leafs').hide()
+                #model.find('**/petals').set_two_sided(True)
 
             if obj.material:
                 model.set_material(obj.material, 1)
             model.reparent_to(path)
 
+        component = obj.terrain[Terrain]
+
+        pos = obj.position
+        res = component.resolution
+        col = core.LColor()
+        component._peeker.lookup_bilinear(
+            col,
+            (pos[0] * component._scale.x) % 1.0,
+            (pos[1] * component._scale.y) % 1.0,
+        )
+        height = col.w * component._scale.z
+        obj._root.set_pos(pos[0], pos[1], pos[2] + height)
+        obj._root.get_child(0).set_scale(obj.scale)
+        obj._root.set_h(obj.direction)
+
+        for tex in obj._root.find_all_textures():
+            tex.wrap_u = core.SamplerState.WM_clamp
+            tex.wrap_v = core.SamplerState.WM_clamp
+
     def update(self, entities_by_filter):
-        for entity in entities_by_filter['object']:
+        for entity in entities_by_filter['movable']:
             obj = entity[TerrainObject]
-            pos = obj.position
 
             component = obj.terrain[Terrain]
+            while obj.position[0] < 0:
+                obj.position = (obj.position[0] + component.size, obj.position[1], obj.position[2])
+            while obj.position[1] < 0:
+                obj.position = (obj.position[0], obj.position[1] + component.size, obj.position[2])
+
+            while obj.position[0] > component.size:
+                obj.position = (obj.position[0] - component.size, obj.position[1], obj.position[2])
+            while obj.position[1] > component.size:
+                obj.position = (obj.position[0], obj.position[1] - component.size, obj.position[2])
+
+            pos = obj.position
             res = component.resolution
             col = core.LColor()
             component._peeker.lookup_bilinear(
                 col,
-                pos[0] * component._scale.x,
-                pos[1] * component._scale.y,
+                (pos[0] * component._scale.x) % 1.0,
+                (pos[1] * component._scale.y) % 1.0,
             )
             height = col.w * component._scale.z
             obj._root.set_pos(pos[0], pos[1], pos[2] + height)
             obj._root.get_child(0).set_scale(obj.scale)
             obj._root.set_h(obj.direction)
-
-            for tex in obj._root.find_all_textures():
-                tex.wrap_u = core.SamplerState.WM_clamp
-                tex.wrap_v = core.SamplerState.WM_clamp
 
             #obj._root.set_texture_off(10)
 
