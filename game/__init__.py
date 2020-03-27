@@ -48,7 +48,7 @@ class Game(ECSShowBase):
             ),
             Controls(acceleration=2.0),
             Speed(min=3.0, max=6.0),
-            Collider(solid=core.CollisionSphere((0, 0, 0), 1.0), from_mask=1, into_mask=0),
+            Collider(solid=core.CollisionSphere((0, -1, 0), 1.5), from_mask=3, joint_from_mask=2, into_mask=0, tangible=False),
             name="player",
         )
 
@@ -188,7 +188,7 @@ class Game(ECSShowBase):
                     },
                 ),
                 SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'thorns'], volume=2),
-                Collider(solid=core.CollisionSphere((0, 0, 1.25), 1), tangible=False),
+                Collider(solid=core.CollisionSphere((0, 0, 1.25), 0.2), into_mask=1, tangible=False),
                 name="flower",
             )
             self.flowers.append(flower)
@@ -256,13 +256,13 @@ class Game(ECSShowBase):
                     self.terrain,
                     model='models/rocks.bam',
                     path=sub,
-                    scale=random()*2+2,
+                    scale=random()*2+3,
                     position=pos,
                     direction=random()*360,
                     material=mat,
                     wraparound=True,
                 ),
-                Collider(tangible=True, bury=5),
+                Collider(into_mask=2, tangible=True),
                 name="rock",
             )
             self.rocks.append(rock)
@@ -352,7 +352,7 @@ class Game(ECSShowBase):
                     shader=tree_shader,
                     wraparound=True,
                 ),
-                Collider(solid=core.CollisionCapsule((0, 0, -1), (0, 0, 5), 0.2)),
+                Collider(solid=core.CollisionCapsule((0, 0, -1), (0, 0, 5), 0.2), into_mask=2),
                 name="tree",
             )
             self.trees.append(tree)
