@@ -171,7 +171,6 @@ class Game(ECSShowBase):
             (109.46275266509446, 215.45896826244123, 0),
             (116.1882945440005, 228.12274689007197, 0),
             (118.8029688543355, 240.94422416566397, 0),
-            (119.04011286254686, 255.56406078480944, 0),
 
             (57.72114627705365, 23.13809485169263, 0),
             (54.83568570922412, 14.708424929273024, 0),
@@ -289,6 +288,8 @@ class Game(ECSShowBase):
             (79.07814213913232, 116.05322856954518, 0),
             (77.9722924574722, 123.58716911561608, 0),
             (76.53528353884747, 132.9635164541018, 0),
+
+            (79.70955065957168, 255.9534151970939, 0),
         ]:
             flower = self.ecs_world.create_entity(
                 TerrainObject(
@@ -638,8 +639,8 @@ class Game(ECSShowBase):
         terrain = self.terrain[Terrain]
         bound = terrain._sat_img.get_x_size() - 1
 
-        num_steps = int(math.ceil(1.0 / globalClock.dt))
-        per_step = 1.0 / num_steps
+        num_steps = int(math.ceil(2.5 / globalClock.dt))
+        per_step = 0.333 / num_steps
 
         point = pos[0] * terrain._scale.x * bound, (bound - pos[1] * terrain._scale.y * bound)
 

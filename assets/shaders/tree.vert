@@ -36,7 +36,8 @@ void main() {
     v_texcoord = p3d_MultiTexCoord0;
 
     float sat = texture2D(satmap, wspos.xy * scale.xy).r;
-    v_color.rgb = mix(v_color.ggg, v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
+    //v_color.rgb = mix(v_color.ggg, v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
+    v_color.rgb = mix(v_color.ggg * vec3(188/255.0, 152/255.0, 101/255.0), v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
 
     gl_Position = p3d_ProjectionMatrix * vec4(v_position, 1);
 }

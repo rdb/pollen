@@ -63,8 +63,10 @@ void main() {
         }
     }
 
-    wspos.xy += mix(vec2(wind_offset, 0), shove, factor);
-    normal.x += mix(wind_offset * 0.8, 0, factor);
+    wspos.xy += v_color.b * mix(vec2(wind_offset, 0), shove, factor);
+    normal.x += v_color.b * mix(wind_offset * 0.8, 0, factor);
+
+    wspos.z *= (0.5 + v_color.b * 0.5);
 
     //wspos.x += wind_offset;
     //normal.x += wind_offset * 0.8;
