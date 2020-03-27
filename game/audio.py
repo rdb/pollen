@@ -90,7 +90,8 @@ class AudioSystem(System):
             root = None
 
         for sound in player.sounds:
-            sfx = self.audio3d.load_sfx(core.Filename('sfx', sound + '.ogg'))
+            path = core.Filename('sfx', sound + '.ogg')
+            sfx = self.audio3d.audio_manager.get_sound(path, positional=(root is not None))
             if player.loop:
                 sfx.set_loop(True)
             player._sfx[sound] = sfx
