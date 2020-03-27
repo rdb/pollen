@@ -137,12 +137,12 @@ class AudioSystem(System):
         print("Changing music to", new_song)
 
     def update(self, entities_by_filter):
-        for entity in entities_by_filter['listener']:
-            listener = entity[Listener]
-            pos = listener._root.get_net_transform().get_pos()
-            vel = (pos - listener._prev_pos) / globalClock.dt
-            self.audio3d.set_listener_velocity(vel)
-            listener._prev_pos = pos
+        #for entity in entities_by_filter['listener']:
+        #    listener = entity[Listener]
+        #    pos = listener._root.get_net_transform().get_pos()
+        #    vel = (pos - listener._prev_pos) / globalClock.dt
+        #    self.audio3d.set_listener_velocity(vel)
+        #    listener._prev_pos = pos
 
         for entity in entities_by_filter['sfx']:
             player = entity[SfxPlayer]
