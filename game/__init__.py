@@ -199,6 +199,7 @@ class Game(ECSShowBase):
                         "flower": ["petal", "petal.001", "petal.002", "petal.003", "petal.004", "petal.005", "petal.006", "petal.007"],
                         "vine": ["vine"],
                     },
+                    play_rate=2.5,
                 ),
                 SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'thorns'], volume=2),
                 Collider(solid=core.CollisionSphere((0, 0, 1.25), 0.2), into_mask=0b01, tangible=False),

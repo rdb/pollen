@@ -37,7 +37,7 @@ class AnimationPlayer(System):
                 if loop_anim:
                     char._actor.set_play_rate(char.play_rate, loop_anim, partName=part)
                     Sequence(
-                        char._actor.actorInterval(anim, partName=part),
+                        char._actor.actorInterval(anim, partName=part, playRate=char.play_rate),
                         Func(lambda: char._actor.loop(loop_anim, partName=part)),
                     ).start()
                 else:
@@ -46,6 +46,7 @@ class AnimationPlayer(System):
             for part, anim in new_state_def.items():
                 if part not in transition:
                     if part not in old_state_def or old_state_def[part] != anim:
+                        char._actor.set_play_rate(char.play_rate, anim, partName=part)
                         char._actor.loop(anim, partName=part)
         else:
             for part, anim in old_state_def.items():
