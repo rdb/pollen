@@ -426,6 +426,38 @@ class Game(ECSShowBase):
 
         self._last_note = 'flower-open-c'
 
+        cm = core.CardMaker("minimap")
+        cm.set_frame(-1, 0, 0, 1)
+        cm.set_uv_range((1, 0), (0, 1))
+        self.minimap = base.a2dBottomRight.attach_new_node(cm.generate())
+        self.minimap.set_texture(self.terrain[Terrain]._sat_tex)
+        self.minimap.set_scale(0.5)
+        self.minimap.hide()
+
+        cm = core.CardMaker("cursor")
+        cm.set_frame(-1, 1, -1, 1)
+        cm.set_color((1, 0, 0, 1))
+        minimap_icon = self.minimap.attach_new_node(cm.generate())
+        minimap_icon.set_scale(0.01)
+        minimap_icon.set_texture_off(10)
+        self.minimap_icon = minimap_icon
+
+        self.accept('m', self.toggle_minimap)
+
+    def toggle_minimap(self):
+        if not self.minimap.is_hidden():
+            self.minimap.hide()
+            self.taskMgr.remove('update-minimap')
+            return
+
+        self.minimap.show()
+        self.taskMgr.add(self._update_minimap, 'update-minimap')
+
+    def _update_minimap(self, task):
+        pos = self.player[TerrainObject].position
+        self.minimap_icon.set_pos(-pos[0] / 256, 0, pos[1] / 256)
+        return task.cont
+
     def print_pos(self):
         pos = self.player[TerrainObject].position
         print('            ' + str((pos[0], pos[1], 0)) + ',')
