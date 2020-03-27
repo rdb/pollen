@@ -40,7 +40,7 @@ void main() {
     v_color.a = 1;
 
     float sat = texture2D(satmap, wspos.xy * scale.xy).r;
-    v_color.b = (sat > 0.5) ? 1.0 : 0.0;
+    v_color.b = (sat > 0.5) ? 1.0 : sat*2;
 
     vec2 shove = vec2(0);
     float factor = 0;
