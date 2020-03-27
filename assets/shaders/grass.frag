@@ -93,11 +93,12 @@ vec3 diffuse_function(FunctionParamters func_params) {
 }
 
 void main() {
-    vec4 base_color = p3d_Material.baseColor * texture2D(p3d_TextureBaseColor, v_texcoord);
-
-    if (base_color.a < 0.5) {
+    vec4 tex_color = texture2D(p3d_TextureBaseColor, v_texcoord);
+    if (tex_color.a < 0.5) {
         discard;
     }
+
+    vec4 base_color = p3d_Material.baseColor * tex_color;
 
     float metallic = clamp(p3d_Material.metallic, 0.0, 1.0);
     float perceptual_roughness = clamp(p3d_Material.roughness,  0.0, 1.0);
