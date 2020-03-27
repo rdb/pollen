@@ -29,7 +29,7 @@ class Game(ECSShowBase):
         mat.roughness = 0
 
         self.terrain = self.ecs_world.create_entity(Terrain(), name="Terrain")
-        self.sun = self.ecs_world.create_entity(Sun(priority=10, intensity=3, color_temperature=6000))
+        self.sun = self.ecs_world.create_entity(Sun(priority=10, intensity=3, color_temperature=7000))
         self.sun2 = self.ecs_world.create_entity(Sun(priority=0, azimuth=-90, elevation=20, intensity=0.5, color_temperature=10000))
         self.player = self.ecs_world.create_entity(
             #TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 64, 1), scale=0.09),
