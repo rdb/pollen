@@ -18,9 +18,15 @@ class Collider:
     tangible: bool = True
 
 
+@Component()
+class GeomCollider:
+    into_mask: int = 1
+
+
 class CollisionDetectionSystem(System):
     entity_filters = {
         'collider': and_filter([Collider]),
+        'geomcollider': and_filter([GeomCollider]),
     }
 
     def __init__(self):
@@ -49,15 +55,17 @@ class CollisionDetectionSystem(System):
         self._times_swarm_activated = 0
 
     def init_entity(self, filter, entity):
-        collider = entity[Collider]
         path = entity[TerrainObject]._root
 
-        if not collider.solid:
-            #bounds = path.get_child(0).get_bounds()
-            #bury = collider.bury
-            #collider.solid = core.CollisionSphere(bounds.center - (0, 0, bury), bounds.radius * 0.5 + bury)
-            path.get_child(0).set_collide_mask(collider.into_mask)
+        if filter == 'geomcollider':
+            path.get_child(0).set_collide_mask(entity[GeomCollider].into_mask)
             return
+
+        collider = entity[Collider]
+
+        if not collider.solid:
+            bounds = path.get_child(0).get_bounds()
+            collider.solid = core.CollisionSphere(bounds.center, bounds.radius)
 
         collider.solid.tangible = collider.tangible
 
@@ -89,7 +97,7 @@ class CollisionDetectionSystem(System):
                     cpath = np.attach_new_node(core.CollisionNode("butterfly"))
                     cpath.node().set_from_collide_mask(collider.joint_from_mask)
                     cpath.node().set_into_collide_mask(collider.into_mask)
-                    cpath.node().add_solid(core.CollisionSphere((0, 0.4, 0.3), 0.6))
+                    cpath.node().add_solid(core.CollisionSphere((0, 0.4, 0.3), 0.7))
                     cpath.node().set_tag("joint", joint.name)
                     cpath.node().modify_solid(0).set_tangible(False)
                     #cpath.show()
@@ -117,6 +125,9 @@ class CollisionDetectionSystem(System):
         #cpath.hide()
 
     def _enter_swarm(self, entry):
+        if entry.get_into_node().name == 'flower':
+            return
+
         if self._times_swarm_activated == 0:
             print("Activating swarm colliders")
             for cpath in self.joint_colliders:
@@ -125,6 +136,9 @@ class CollisionDetectionSystem(System):
         self._times_swarm_activated += 1
 
     def _leave_swarm(self, entry):
+        if entry.get_into_node().name == 'flower':
+            return
+
         self._times_swarm_activated -= 1
 
         if self._times_swarm_activated == 0:
