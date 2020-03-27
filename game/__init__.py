@@ -551,8 +551,10 @@ class Game(ECSShowBase):
         cm.set_uv_range((0, 0), (1, 1))
         self.minimap = base.a2dBottomRight.attach_new_node(cm.generate())
         self.minimap.set_texture(self.terrain[Terrain]._sat_tex)
-        self.minimap.set_scale(0.5)
+        self.minimap.set_scale(2/3.0)
         self.minimap.hide()
+        self.minimap.set_transparency(1)
+        self.minimap.set_alpha_scale(0.75)
 
         sz = 0.005
         cm = core.CardMaker("flower")
@@ -585,6 +587,10 @@ class Game(ECSShowBase):
         cm.set_color((0.4, 0.2, 0.7, 1))
         minimap_icon = self.minimap.attach_new_node(cm.generate())
         minimap_icon.set_texture_off(10)
+        arrow = minimap_icon.attach_new_node(cm.generate())
+        arrow.set_r(45)
+        arrow.set_scale(0.707)
+        arrow.set_z(0.01)
         self.minimap_icon = minimap_icon
 
         self.accept('m', self.toggle_minimap)
@@ -604,6 +610,7 @@ class Game(ECSShowBase):
     def _update_minimap(self, task):
         pos = self.player[TerrainObject].position
         self.minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
+        self.minimap_icon.set_r(-self.player[TerrainObject].direction)
         return task.cont
 
     def print_pos(self):
