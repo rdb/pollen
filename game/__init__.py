@@ -415,12 +415,13 @@ class Game(ECSShowBase):
 
         #print(self.camList)
 
-        radius = 8
+        radius = 12
         size = math.ceil(radius * 2)
         half_size = size * 0.5
         r = half_size / radius
-        self.spot = core.PNMImage(size, size, 1)
-        self.spot.render_spot((1, 1, 1, 1), (0, 0, 0, 0), 0, r)
+        self.spot = core.PNMImage(size, size, 2)
+        self.spot.render_spot((1, 1, 1, 1), (1, 1, 1, 0), 0, r)
+        self.spot.apply_exponent(2, 2, 2, 2)
 
     def print_pos(self):
         pos = self.player[TerrainObject].position
@@ -451,12 +452,12 @@ class Game(ECSShowBase):
         point = pos[0] * terrain._scale.x * bound, (bound - pos[1] * terrain._scale.y * bound)
 
         def paint_more(task):
-            terrain._sat_img.lighten_sub_image(
+            terrain._sat_img.blend_sub_image(
                 self.spot,
                 int(round(point[0] - self.spot.get_x_size() / 2)),
                 int(round(point[1] - self.spot.get_y_size() / 2)),
                 0, 0, -1, -1,
-                (per_step + 0.5) * (task.get_elapsed_frames() + 1)
+                (per_step * 0.1) * (task.get_elapsed_frames() + 1)
             )
             terrain._sat_tex.load(terrain._sat_img)
 
