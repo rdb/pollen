@@ -7,6 +7,7 @@ uniform mat3 p3d_NormalMatrix;
 
 uniform vec3 scale;
 uniform sampler2D windmap;
+uniform sampler2D satmap;
 
 uniform float osg_FrameTime;
 
@@ -33,6 +34,9 @@ void main() {
     v_color = p3d_Color;
     v_normal = normalize(p3d_NormalMatrix * p3d_Normal);
     v_texcoord = p3d_MultiTexCoord0;
+
+    float sat = texture2D(satmap, wspos.xy * scale.xy).r;
+    v_color.rgb = mix(v_color.ggg, v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
 
     gl_Position = p3d_ProjectionMatrix * vec4(v_position, 1);
 }
