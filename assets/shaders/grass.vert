@@ -22,7 +22,9 @@ varying vec3 v_normal;
 varying vec2 v_texcoord;
 
 void main() {
-    vec3 wspos = (p3d_ModelMatrix * p3d_Vertex).xyz;
+    mat4 modelmat = p3d_ModelMatrix;
+    modelmat[3][2] = 0;
+    vec3 wspos = (modelmat * p3d_Vertex).xyz;
 
     // normal is stored in xyz, height in alpha
     vec4 sample = texture2D(terrainmap, wspos.xy * scale.xy);
