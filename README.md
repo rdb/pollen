@@ -1,4 +1,8 @@
-This is a PyWeek 29 entry.
+# pollen.
+
+Awaken spring.
+
+This is an entry in the [PyWeek 29](https://pyweek.org/29/) challenge.
 
 ## Acknowledgements
 

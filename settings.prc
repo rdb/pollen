@@ -8,6 +8,7 @@ x-init-threads true
 
 model-path $MAIN_DIR/assets
 
+window-title pollen.
 win-fixed-size true
 win-size 1024 768
 
