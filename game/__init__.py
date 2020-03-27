@@ -186,7 +186,7 @@ class Game(ECSShowBase):
                         "vine": ["vine"],
                     },
                 ),
-                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'thorns'], volume=1000),
+                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'thorns'], volume=2),
                 Collider(solid=core.CollisionSphere((0, 0, 1.25), 1)),
                 name="flower",
             )
