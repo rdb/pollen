@@ -473,7 +473,7 @@ class Game(ECSShowBase):
         self.minimap.hide()
 
         sz = 0.005
-        cm = core.CardMaker("cursor")
+        cm = core.CardMaker("flower")
         cm.set_frame(-sz, sz, -sz, sz)
         cm.set_color((0.9, 0.2, 0.2, 1))
 
@@ -485,6 +485,17 @@ class Game(ECSShowBase):
             minimap_icon.set_texture_off(10)
             minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
             self.flower_icons[flower._uid] = minimap_icon
+
+        sz = 0.005
+        cm = core.CardMaker("tree")
+        cm.set_frame(-sz, sz, -sz, sz)
+        cm.set_color((0.0, 0.5, 0.0, 1))
+
+        for tree in self.trees:
+            pos = tree[TerrainObject].position
+            minimap_icon = self.minimap.attach_new_node(cm.generate())
+            minimap_icon.set_texture_off(10)
+            minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
 
         sz = 0.01
         cm = core.CardMaker("cursor")
