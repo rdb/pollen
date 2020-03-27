@@ -187,7 +187,7 @@ class Game(ECSShowBase):
                     },
                 ),
                 SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'thorns'], volume=2),
-                Collider(solid=core.CollisionSphere((0, 0, 1.25), 1)),
+                Collider(solid=core.CollisionSphere((0, 0, 1.25), 1), tangible=False),
                 name="flower",
             )
             self.flowers.append(flower)
@@ -261,6 +261,7 @@ class Game(ECSShowBase):
                     material=mat,
                     wraparound=True,
                 ),
+                Collider(tangible=True, bury=5),
                 name="rock",
             )
             self.rocks.append(rock)
@@ -350,6 +351,7 @@ class Game(ECSShowBase):
                     shader=tree_shader,
                     wraparound=True,
                 ),
+                Collider(solid=core.CollisionCapsule((0, 0, -1), (0, 0, 5), 0.2)),
                 name="tree",
             )
             self.trees.append(tree)
