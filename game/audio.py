@@ -95,8 +95,6 @@ class AudioSystem(System):
                 sfx.set_loop(True)
             player._sfx[sound] = sfx
             player._root = root
-            if root:
-                self.audio3d.attach_sound_to_object(sfx, root)
 
     def init_music(self, entity):
         music = entity[Music]
@@ -114,9 +112,9 @@ class AudioSystem(System):
         player._sfx[sound].set_volume(player.volume)
         player._sfx[sound].play()
 
-        #if player._root:
-        #    pos = player._root.get_pos(base.cam)
-        #    player._sfx[sound].set3dAttributes(pos[0], pos[1], pos[2], 0, 0, 0)
+        if player._root:
+            pos = player._root.get_pos(self.audio3d.root)
+            player._sfx[sound].set_3d_attributes(pos[0], pos[1], pos[2], 0, 0, 0)
 
         print("Playing sound", sound)
 
