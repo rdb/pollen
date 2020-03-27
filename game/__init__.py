@@ -211,6 +211,81 @@ class Game(ECSShowBase):
             (224.81109773500796, 47.861669040492494, 0),
             (221.03124861041616, 41.109409619364044, 0),
             (226.95840539191792, 35.410150756790976, 0),
+
+            # A trio
+            (191.35427070335803, 33.58948796942942, 0),
+            (194.79560227886503, 27.650843093451414, 0),
+            (197.9091582211352, 32.706975574283895, 0),
+
+            (89.90026699678978, 113.69701450486184, 0),
+            (96.54471054383173, 102.66577856382757, 0),
+            (90.30983739216052, 95.53393310320703, 0),
+
+            (136.37815410409448, 184.2896357815367, 0),
+            (148.80695625160013, 192.7327571070027, 0),
+            (170.12965917990522, 198.07142582699416, 0),
+            (185.55730135432339, 189.91360389837496, 0),
+            (204.09846544959535, 188.7803899075964, 0),
+            (215.90876652182146, 198.16845079019424, 0),
+            (221.4337231710032, 212.24022789691972, 0),
+            (216.93893100503382, 228.37042317059561, 0),
+            (204.08323239253662, 233.4783884611088, 0),
+            (193.483333184627, 228.88358632410822, 0),
+            (180.51764400645283, 221.51007856720994, 0),
+            (168.9143247918589, 216.48081186173937, 0),
+            (155.3049381994334, 217.84213269139477, 0),
+            (146.378762918998, 225.68344439543455, 0),
+            (139.93819757254076, 238.65349161448978, 0),
+            (132.97946352973892, 250.7408225292395, 0),
+
+            (29.350722419175685, 241.3910478606554, 0),
+            (20.133346821568303, 249.61823994600195, 0),
+            (10.346773845022398, 248.06873447397248, 0),
+            (8.687520306138117, 234.0175857929473, 0),
+            (180.19359198916518, 167.46072283728094, 0),
+
+            # Slalom
+
+            (243.01162964101823, 53.29815236126152, 0),
+            (251.60862542062415, 60.85632002783746, 0),
+            (2.735007844058824, 69.53734218273168, 0),
+            (14.095482024606563, 77.69082801005295, 0),
+            (23.471972039490677, 81.91639930162111, 0),
+            (32.30166252501987, 87.55152763025269, 0),
+            (37.65790702312686, 94.66520162513443, 0),
+            (39.7626447039763, 105.40147597228956, 0),
+            (36.69907274701938, 115.07697813648598, 0),
+            (30.113742242883983, 124.51823041776727, 0),
+            (24.911534200174604, 135.1609474815683, 0),
+            (28.147477481464907, 145.84393781692188, 0),
+            (36.43823838904034, 150.21278243608475, 0),
+            (45.96640551063055, 147.5180452017424, 0),
+            (51.980574624105074, 148.36291831180316, 0),
+            (59.795262439512925, 153.2373224274378, 0),
+            (63.95897676752707, 161.86351987200433, 0),
+            (63.097615671776516, 172.58966025813183, 0),
+            (61.538210896745355, 182.6335184444167, 0),
+            (64.86929596875241, 192.97914576198494, 0),
+            (74.59525860771423, 197.6119924807432, 0),
+            (87.00369706327608, 194.2260882310563, 0),
+            (103.1733320858391, 250.00764526828317, 0),
+            (94.15939093923622, 255.62837785668094, 0),
+            #(83.67401654337496, 2.7149590232081624, 0),
+            #(70.60850191243787, 1.789399027573447, 0),
+            (59.59424926217645, 253.8583515280184, 0),
+
+            # Another trio
+            (29.649610589974127, 41.79635190879359, 0),
+            (13.378140693052734, 31.6924431632997, 0),
+            (26.15853117430919, 28.813804616828214, 0),
+
+            (23.11302685143048, 177.24147101040091, 0),
+            (29.917117500964366, 186.47212327273195, 0),
+            (36.97620642816884, 195.17909739273503, 0),
+            (43.31169944703755, 204.43899210882407, 0),
+            (47.94207758981136, 216.11495863692357, 0),
+            (46.6431495617351, 229.2515768394893, 0),
+
         ]:
             flower = self.ecs_world.create_entity(
                 TerrainObject(
@@ -448,7 +523,7 @@ class Game(ECSShowBase):
         sky.set_light_off(10)
         sky.set_color_scale((0.7, 0.8, 1.0, 1.0))
 
-        self.num_flowers = 0
+        self.num_flowers = len(self.flowers)
 
         self.render.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/object.vert", "assets/shaders/object.frag"), 10)
 
@@ -507,6 +582,9 @@ class Game(ECSShowBase):
 
         self.accept('m', self.toggle_minimap)
 
+        #for flower in self.flowers:
+        #    self.paint_at(flower[TerrainObject].position)
+
     def toggle_minimap(self):
         if not self.minimap.is_hidden():
             self.minimap.hide()
@@ -544,10 +622,15 @@ class Game(ECSShowBase):
         #self.player[Controls].enabled = False
 
         #self.player[TerrainObject]._root.hprInterval(4, (360, 0, 0), blendType='easeInOut').start()
+        self.num_flowers -= 1
+        print("%d flowers to go!" % (self.num_flowers))
 
         obj = flower[TerrainObject]
         pos = obj.position
 
+        self.paint_at(pos)
+
+    def paint_at(self, pos):
         terrain = self.terrain[Terrain]
         bound = terrain._sat_img.get_x_size() - 1
 
@@ -557,21 +640,58 @@ class Game(ECSShowBase):
         point = pos[0] * terrain._scale.x * bound, (bound - pos[1] * terrain._scale.y * bound)
 
         def paint_more(task):
+            px_x = int(round(point[0] - self.spot.get_x_size() / 2))
+            px_y = int(round(point[1] - self.spot.get_y_size() / 2))
             terrain._sat_img.blend_sub_image(
                 self.spot,
-                int(round(point[0] - self.spot.get_x_size() / 2)),
-                int(round(point[1] - self.spot.get_y_size() / 2)),
+                px_x,
+                px_y,
                 0, 0, -1, -1,
                 (per_step * 0.1) * (task.get_elapsed_frames() + 1)
             )
+
+            if px_x < self.spot.get_x_size():
+                terrain._sat_img.blend_sub_image(
+                    self.spot,
+                    px_x + terrain._sat_img.get_x_size(),
+                    px_y,
+                    0, 0, -1, -1,
+                    (per_step * 0.1) * (task.get_elapsed_frames() + 1)
+                )
+
+            if px_y < self.spot.get_y_size():
+                terrain._sat_img.blend_sub_image(
+                    self.spot,
+                    px_x,
+                    px_y + terrain._sat_img.get_y_size(),
+                    0, 0, -1, -1,
+                    (per_step * 0.1) * (task.get_elapsed_frames() + 1)
+                )
+
+            if px_x > terrain._sat_img.get_x_size() - self.spot.get_x_size():
+                terrain._sat_img.blend_sub_image(
+                    self.spot,
+                    px_x - terrain._sat_img.get_x_size(),
+                    px_y,
+                    0, 0, -1, -1,
+                    (per_step * 0.1) * (task.get_elapsed_frames() + 1)
+                )
+
+            if px_y > terrain._sat_img.get_y_size() - self.spot.get_y_size():
+                terrain._sat_img.blend_sub_image(
+                    self.spot,
+                    px_x,
+                    px_y - terrain._sat_img.get_y_size(),
+                    0, 0, -1, -1,
+                    (per_step * 0.1) * (task.get_elapsed_frames() + 1)
+                )
+
             terrain._sat_tex.load(terrain._sat_img)
 
             if task.get_elapsed_frames() < num_steps:
                 return task.cont
 
         taskMgr.add(paint_more)
-
-        self.num_flowers += 1
 
 
 def main():
