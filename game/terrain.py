@@ -38,7 +38,7 @@ class TerrainObject:
     path: str = None
     shadeless: bool = False
     shader: core.Shader = None
-    wraparound: bool = False
+    wraparound: float = 0
 
 
 class TerrainSystem(System):
@@ -270,7 +270,7 @@ class TerrainSystem(System):
             tex.wrap_v = core.SamplerState.WM_clamp
 
         if obj.wraparound:
-            border = 120
+            border = obj.wraparound
             if pos[0] < border:
                 inst = model.instance_under_node(render, "wrap")
                 inst.set_transform(obj._root.get_transform())
