@@ -15,6 +15,7 @@ uniform vec3 player;
 uniform vec3 scale;
 uniform sampler2D terrainmap;
 uniform sampler2D windmap;
+uniform sampler2D satmap;
 
 varying vec3 v_position;
 varying vec4 v_color;
@@ -37,6 +38,9 @@ void main() {
 
     v_color.g = hval * 0.333;
     v_color.a = 1;
+
+    float sat = texture2D(satmap, wspos.xy * scale.xy).r;
+    v_color.b = (sat > 0.5) ? 1.0 : 0.0;
 
     vec2 shove = vec2(0);
     float factor = 0;

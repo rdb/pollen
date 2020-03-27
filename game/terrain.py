@@ -135,6 +135,11 @@ class TerrainSystem(System):
         mat.roughness = 1
         #root.set_material(mat)
 
+        simg = core.PNMImage(64, 64, 1)
+        component._sat_img = simg
+        component._sat_tex = core.Texture()
+        component._sat_tex.load(simg)
+
         component._scale = core.VBase3(component.resolution / scaled_size, component.resolution / scaled_size, max_mag)
 
         component._wind_map = loader.load_texture("assets/textures/wind.png")
@@ -148,6 +153,8 @@ class TerrainSystem(System):
         grass_root.set_shader_input("terrainmap", ntex)
         render.set_shader_input("windmap", component._wind_map)
         grass_root.set_material(mat)
+
+        render.set_shader_input("satmap", component._sat_tex)
 
         #grass_root.node().set_bounds(core.BoundingSphere())
         #grass_root.node().set_final(True)

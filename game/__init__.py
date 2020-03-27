@@ -4,6 +4,7 @@ from panda3d import core
 import simplepbr
 
 from random import random, choice
+import math
 
 from .controls import Controls, PlayerController
 from .terrain import Terrain, TerrainObject, TerrainSystem
@@ -400,6 +401,13 @@ class Game(ECSShowBase):
 
         #print(self.camList)
 
+        radius = 8
+        size = math.ceil(radius * 2)
+        half_size = size * 0.5
+        r = half_size / radius
+        self.spot = core.PNMImage(size, size, 1)
+        self.spot.render_spot((1, 1, 1, 1), (0, 0, 0, 0), 0, r)
+
     def print_pos(self):
         pos = self.player[TerrainObject].position
         print('            ' + str((pos[0], pos[1], 0)) + ',')
@@ -416,6 +424,32 @@ class Game(ECSShowBase):
         #self.player[Controls].enabled = False
 
         #self.player[TerrainObject]._root.hprInterval(4, (360, 0, 0), blendType='easeInOut').start()
+
+        obj = flower[TerrainObject]
+        pos = obj.position
+
+        terrain = self.terrain[Terrain]
+        bound = terrain._sat_img.get_x_size() - 1
+
+        num_steps = int(math.ceil(1.0 / globalClock.dt))
+        per_step = 1.0 / num_steps
+
+        point = pos[0] * terrain._scale.x * bound, (bound - pos[1] * terrain._scale.y * bound)
+
+        def paint_more(task):
+            terrain._sat_img.lighten_sub_image(
+                self.spot,
+                int(round(point[0] - self.spot.get_x_size() / 2)),
+                int(round(point[1] - self.spot.get_y_size() / 2)),
+                0, 0, -1, -1,
+                (per_step + 0.5) * (task.get_elapsed_frames() + 1)
+            )
+            terrain._sat_tex.load(terrain._sat_img)
+
+            if task.get_elapsed_frames() < num_steps:
+                return task.cont
+
+        taskMgr.add(paint_more)
 
         self.num_flowers += 1
 
