@@ -78,5 +78,5 @@ void main() {
     v_texcoord = p3d_MultiTexCoord0;
     gl_Position = p3d_ProjectionMatrix * vec4(v_position, 1);
 
-    v_color.r = min(1.0, t * t);
+    v_color.r = t;
 }
