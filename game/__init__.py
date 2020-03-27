@@ -424,6 +424,8 @@ class Game(ECSShowBase):
         self.spot.render_spot((1, 1, 1, 1), (1, 1, 1, 0), 0, r)
         self.spot.apply_exponent(2, 2, 2, 2)
 
+        self._last_note = 'flower-open-c'
+
     def print_pos(self):
         pos = self.player[TerrainObject].position
         print('            ' + str((pos[0], pos[1], 0)) + ',')
@@ -434,7 +436,12 @@ class Game(ECSShowBase):
             return
 
         flower[Character].state = 'open'
-        flower[SfxPlayer].play(choice(['flower-open-a', 'flower-open-b', 'flower-open-c']))
+
+        notes = set(['flower-open-a', 'flower-open-b', 'flower-open-c'])
+        notes.discard(self._last_note)
+        note = choice(list(notes))
+        flower[SfxPlayer].play(note)
+        self._last_note = note
 
         #self.player[Speed].current = 0.0
         #self.player[Controls].enabled = False
