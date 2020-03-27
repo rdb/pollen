@@ -234,15 +234,6 @@ class TerrainSystem(System):
                     #if obj.shadeless:
                     #    model.set_light_off(1)
 
-            if 'flower' in obj.model:
-                mat = core.Material()
-                #mat.base_color = (0.3, 0.3, 2, 1)
-                mat.base_color = (2.0, 0.75, 0.6, 1)
-                model.find('**/petals').set_material(mat, 10000000)
-                model.find('**/petals').set_light_off(100)
-                model.find('**/leafs').hide()
-                #model.find('**/petals').set_two_sided(True)
-
             if obj.material:
                 model.set_material(obj.material, 1)
 
