@@ -186,7 +186,7 @@ class Game(ECSShowBase):
                         "vine": ["vine"],
                     },
                 ),
-                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'thorns'], volume=2),
+                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'thorns'], volume=2),
                 Collider(solid=core.CollisionSphere((0, 0, 1.25), 1), tangible=False),
                 name="flower",
             )
@@ -410,7 +410,7 @@ class Game(ECSShowBase):
             return
 
         flower[Character].state = 'open'
-        flower[SfxPlayer].play(choice(['flower-open-a', 'flower-open-b']))
+        flower[SfxPlayer].play(choice(['flower-open-a', 'flower-open-b', 'flower-open-c']))
 
         #self.player[Speed].current = 0.0
         #self.player[Controls].enabled = False
