@@ -151,7 +151,7 @@ void main() {
     }
 
     //color.rgb += p3d_LightModel.ambient.rgb;
-    color.rgb = mix(color.ggg, color.rgb, v_color.b);
+    color.rgb = mix(color.ggg * 0.75, color.rgb, v_color.b);
 
     color.a *= v_color.a;
     color.rgb *= p3d_ColorScale.rgb;
