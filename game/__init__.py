@@ -239,7 +239,7 @@ class Game(ECSShowBase):
                     },
                     play_rate=2.5,
                 ),
-                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'thorns'], volume=2),
+                SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'thorns'], volume=1),
                 Collider(solid=core.CollisionSphere((0, 0, 1.25), 0.2), into_mask=0b01, tangible=False),
                 name="flower",
             )
