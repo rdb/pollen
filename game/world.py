@@ -1067,6 +1067,8 @@ class World(ECSWorld, DirectObject):
             base.transitions.getFadeOutIval(3.0),
         ).start()
 
+        print("Thank you for playing our game!")
+
     def fill_map(self, v=1):
         terrain = self.terrain[Terrain]
         terrain._sat_img.fill(v)
