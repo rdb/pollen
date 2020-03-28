@@ -149,9 +149,9 @@ class Game(ShowBase):
     def finish_starting(self):
         self.started = True
         self.world.activate()
-        self.accept('2', self.world.press_2)
-        self.accept('3', self.world.press_3)
-        self.accept('4', self.world.ending)
+        #self.accept('2', self.world.press_2)
+        #self.accept('3', self.world.press_3)
+        #self.accept('4', self.world.ending)
         self.accept('p', self.world.print_pos)
 
         self.accept('pause', self.pause)
