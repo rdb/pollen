@@ -21,6 +21,7 @@ class Camera:
     fov: float = 80
     fast_fov: float = 110
     far: float = 128
+    active: bool = False
 
 
 class CameraSystem(System):
@@ -38,13 +39,14 @@ class CameraSystem(System):
         #cam_node = core.Camera(entity._uid.name)
         cam_node = base.cam.node()
         camera._lens = cam_node.get_lens()
-        camera._lens.set_fov(camera.fov)
+        #camera._lens.set_fov(camera.fov)
         camera._lens.set_far(camera.far)
         #camera._root = target_obj._root.attach_new_node(cam_node)
         camera._root = base.camera
-        camera._root.reparent_to(target_obj._root)
+        camera._root.wrt_reparent_to(target_obj._root)
         camera._root.set_pos(0, -camera.distance, camera.elevation)
-        camera._root.look_at(0, 0, 0)
+        #print(-camera.distance, camera.elevation)
+        #camera._root.look_at(0, 0, 0)
 
     def button_pressed(self, entity, action):
         controls = entity[Controls]
@@ -58,6 +60,9 @@ class CameraSystem(System):
         for entity in entities_by_filter['camera']:
             camera = entity[Camera]
 
+            if not camera.active:
+                continue
+
             fov = camera.fov
 
             if Speed in camera.target:
@@ -67,7 +72,7 @@ class CameraSystem(System):
                     t = smoothstep(t)
                     fov = t * camera.fast_fov + (1 - t) * fov
 
-            if base.cam.parent.name != "dolly":
+            if base.cam.parent.name != "dolly" and base.started:
                 if fov > 0:
                     camera._lens.set_fov(fov)
                 h = base.cam.get_h()

@@ -124,6 +124,9 @@ class PlayerController(System, DirectObject):
             ))
 
     def update(self, entities_by_filter):
+        if not base.started:
+            return
+
         for entity in entities_by_filter['player']:
             obj = entity[TerrainObject]
             controls = entity[Controls]
@@ -191,14 +194,16 @@ class PlayerController(System, DirectObject):
                 delta /= dist
                 cur += delta * min(dt * RESPONSIVENESS, dist)
 
-            if base.cam.parent.name != "dolly":
+            if base.cam.parent.name != "dolly" and base.started:
                 base.cam.set_z(cur.y)
                 base.cam.set_x(cur.x * abs(cur.x) * 1.5)
                 obj.direction -= cur.x * 0.5 * controls.turn_speed * dt
 
             self._current_vec = cur
 
-            if (core.Vec2(base.world.dolmen[TerrainObject].position[0], base.world.dolmen[TerrainObject].position[1]) - core.Vec2(base.world.player[TerrainObject].position[0], base.world.player[TerrainObject].position[1])).length_squared() < 600:
+            if not base.started:
+                self._speed_target = 0.0
+            elif (core.Vec2(base.world.dolmen[TerrainObject].position[0], base.world.dolmen[TerrainObject].position[1]) - core.Vec2(base.world.player[TerrainObject].position[0], base.world.player[TerrainObject].position[1])).length_squared() < 600:
                 self._speed_target = speed.min
             elif controls._states['forward'] and base.cam.parent.name != 'dolly':
                 self._speed_target = speed.max

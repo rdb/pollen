@@ -138,6 +138,7 @@ class TerrainSystem(System):
         #root.set_material(mat)
 
         simg = core.PNMImage(64, 64, 1)
+        simg.fill(1)
         component._sat_img = simg
         component._sat_tex = core.Texture()
         component._sat_tex.load(simg)
@@ -147,7 +148,6 @@ class TerrainSystem(System):
         component._wind_map = loader.load_texture("assets/textures/wind.png")
         component._wind_sound = loader.load_sfx("assets/sfx/wind-low.ogg")
         component._wind_sound.set_loop(True)
-        component._wind_sound.play()
 
         grass_root = render.attach_new_node("grass")
         grass_root.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/grass.vert", "assets/shaders/grass.frag"), 20)

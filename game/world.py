@@ -2,7 +2,6 @@ from wecs.core import World as ECSWorld
 from direct.showbase.DirectObject import DirectObject
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 from panda3d import core
-import simplepbr
 
 from random import random, choice
 import math
@@ -32,6 +31,104 @@ class World(ECSWorld, DirectObject):
         self.terrain = self.create_entity(Terrain(), name="Terrain")
         self.sun = self.create_entity(Sun(priority=10, intensity=3, color_temperature=7000))
         self.sun2 = self.create_entity(Sun(priority=0, azimuth=-90, elevation=20, intensity=0.5, color_temperature=10000))
+
+        self.music = self.create_entity(Music(songs=["menu", "peace", "chase", "pause"], current="menu"), name="music")
+        self.ambient = self.create_entity(SfxPlayer(sounds=['background'], loop=True))
+        self.ambient[SfxPlayer].play('background')
+
+        sky = loader.load_model("models/sky")
+        sky.set_bin('background', 1)
+        sky.set_depth_write(False)
+        sky.set_depth_test(False)
+        sky.reparent_to(base.cam)
+        sky.set_compass()
+        sky.set_scale(5)
+        sky.set_shader_off(10)
+        sky.set_light_off(10)
+        sky.set_color_scale((0.7, 0.8, 1.0, 1.0))
+
+        self.tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
+
+        self.trees = []
+
+        pos = (251.88694392730682, 43.61265902663462, 0)
+        sub = choice([
+            '**/tree',
+            '**/tree.001',
+            '**/tree.002',
+            '**/tree.003',
+        ])
+        #pos = (pos[0], pos[1], -random())
+        tree = self.create_entity(
+            TerrainObject(
+                self.terrain,
+                model='models/trees.bam',
+                path='**/tree.001',
+                scale=1,
+                position=pos,
+                direction=0,
+                material=mat,
+                shader=self.tree_shader,
+                wraparound=120,
+            ),
+            Collider(solid=core.CollisionCapsule((0, 0, -1), (0, 0, 5), 0.5), into_mask=0b11),
+            name="tree",
+        )
+
+        #pos = (251.887+3, 43.6127, 0)
+        pos = (251.887-256+3.5, 43.6127, 0)
+        self.lone_flower = self.create_entity(
+            TerrainObject(
+                self.terrain,
+                model='models/flower.bam',
+                position=pos,
+                direction=random()*360,
+                scale=0.5,
+                material=mat,
+            ),
+            Character(
+                state="closed",
+                states={
+                    "locked": {"flower": "closed_idle"},
+                    "closed": {"flower": "closed_idle"},
+                    "open": {"flower": ""},
+                },
+                transitions={
+                    #(None, "closed"): {"vine": "vine"},
+                    ("locked", "open"): {"flower": "open", "vine": "vine"},
+                    ("closed", "open"): {"flower": "open"},
+                },
+                subparts={
+                    "flower": ["petal", "petal.001", "petal.002", "petal.003", "petal.004", "petal.005", "petal.006", "petal.007"],
+                    "vine": ["vine"],
+                },
+                play_rates={
+                    "locked": 2.5,
+                    "closed": 1.0,
+                    "open": 2.5,
+                },
+            ),
+            name="lone_flower",
+        )
+
+        self.add_system(TerrainSystem(), sort=0)
+        self.add_system(LightingSystem(), sort=1)
+        self.add_system(AnimationPlayer(), sort=3)
+        self.add_system(AudioSystem(), sort=5)
+
+        render.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/object.vert", "assets/shaders/object.frag"), 10)
+
+    def finish_loading(self):
+        self.terrain[Terrain]._wind_sound.play()
+        self.fill_map(0)
+
+        self.lone_flower[TerrainObject]._root.remove_node()
+
+        mat = core.Material()
+        mat.twoside = True
+        mat.base_color = (0.2, 0.2, 0.2, 1)
+        mat.roughness = 0
+
         self.player = self.create_entity(
             #TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 64, 1), scale=0.09),
             TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 60, 1), scale=0.2, shadeless=True, material=mat),
@@ -58,13 +155,15 @@ class World(ECSWorld, DirectObject):
             Collider(solid=core.CollisionSphere((0, 0.5, 0), 2), from_mask=0b01, joint_from_mask=0b10, into_mask=0, tangible=False),
             name="player",
         )
+        self.flush_component_updates()
 
-        camera = self.create_entity(
+        self.camera = self.create_entity(
             Camera(target=self.player),
             Collider(solid=core.CollisionSphere((0, 0, 0), 3), from_mask=0b10, tangible=False),
             Listener(),
             name="camera",
         )
+        self.camera[Camera]._root = base.camera
 
         mat = core.Material()
         mat.twoside = True
@@ -471,8 +570,6 @@ class World(ECSWorld, DirectObject):
             )
             self.rocks.append(rock)
 
-        tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
-
         shrub_positions = [
             (145.1654531609378, 84.56205859354166, 0),
             (133.99739124052564, 95.74738159686336, 0),
@@ -561,7 +658,7 @@ class World(ECSWorld, DirectObject):
                     position=pos,
                     direction=dir,
                     material=mat,
-                    shader=tree_shader,
+                    shader=self.tree_shader,
                     wraparound=64,
                     draw_distance=64,
                 ),
@@ -604,7 +701,6 @@ class World(ECSWorld, DirectObject):
             (226.78261885364577, 46.699038760172556, 0),
             (236.31441122722777, 35.811792309990395, 0),
             (244.0675453062362, 41.461836300440766, 0),
-            (251.88694392730682, 43.61265902663462, 0),
             (0.9360229815382952, 118.35309110859266, 0),
             (2.9367472705065185, 110.5310509314511, 0),
             (80.51599951596246, 97.06288773442499, 0),
@@ -630,7 +726,6 @@ class World(ECSWorld, DirectObject):
             #(188.00154226065294, 244.918254643617, 0),
         ]
 
-        self.trees = []
         for pos in tree_positions:
             scale = random()*0.5+0.5
             dir = random()*360
@@ -650,7 +745,7 @@ class World(ECSWorld, DirectObject):
                     position=pos,
                     direction=dir,
                     material=mat,
-                    shader=tree_shader,
+                    shader=self.tree_shader,
                     wraparound=120,
                 ),
                 Collider(solid=core.CollisionCapsule((0, 0, -1), (0, 0, 5), 0.5), into_mask=0b11),
@@ -659,20 +754,13 @@ class World(ECSWorld, DirectObject):
             self.trees.append(tree)
 
         #self.create_entity(AmbientLight(intensity=0.1, color=(0.5, 0.7, 0.5)))
+        self.flush_component_updates()
 
-        self.music = self.create_entity(Music(songs=["peace", "chase"], current="peace"), name="music")
-        self.ambient = self.create_entity(SfxPlayer(sounds=['background'], loop=True))
-        self.ambient[SfxPlayer].play('background')
-
-        self.add_system(PlayerController(), sort=-1)
-        self.add_system(TerrainSystem(), sort=0)
-        self.add_system(LightingSystem(), sort=1)
+        ctrl = PlayerController()
+        self.add_system(ctrl, sort=-1)
         self.add_system(CameraSystem(), sort=2)
-        self.add_system(AnimationPlayer(), sort=3)
-        self.add_system(CollisionDetectionSystem(), sort=4)
-        self.add_system(AudioSystem(), sort=5)
 
-        simplepbr.init(msaa_samples=0, max_lights=2)
+        self.update_system(ctrl)
 
         self.accept('player-into-flower', self.handle_collision)
 
@@ -680,20 +768,8 @@ class World(ECSWorld, DirectObject):
         #render.find("**/butterfly").set_color_scale((1, 1, 1, 1), 10000)
         #render.find("**/butterfly").set_shader_off(20)
 
-        sky = loader.load_model("models/sky")
-        sky.set_bin('background', 1)
-        sky.set_depth_write(False)
-        sky.set_depth_test(False)
-        sky.reparent_to(base.cam)
-        sky.set_compass()
-        sky.set_scale(5)
-        sky.set_shader_off(10)
-        sky.set_light_off(10)
-        sky.set_color_scale((0.7, 0.8, 1.0, 1.0))
-
         self.num_flowers = len(self.flowers)
 
-        render.set_shader(core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/object.vert", "assets/shaders/object.frag"), 10)
         #sattr = render.get_attrib(core.ShaderAttrib)
         #sattr = sattr.set_flag(core.ShaderAttrib.F_hardware_skinning, True)
         #render.set_attrib(sattr)
@@ -797,6 +873,11 @@ class World(ECSWorld, DirectObject):
 
         self.player[Character]._actor.loop('flap', partName='morphs')
         self.player[Character]._state_actors['end'].hide()
+
+    def activate(self):
+        self.add_system(CollisionDetectionSystem(), sort=4)
+
+        self.camera[Camera].active = True
 
     def add_system(self, system, sort):
         ECSWorld.add_system(self, system, sort)
@@ -930,7 +1011,7 @@ class World(ECSWorld, DirectObject):
                 dolly.posInterval(3, (0, 0, 10), blendType='easeInOut'),
                 base.cam.hprInterval(3, look_hpr, blendType='easeInOut'),
             ),
-            Wait(2.0),
+            Wait(1.5),
             Parallel(
                 dolly.posInterval(1.5, (0, 0, 0), blendType='easeInOut'),
                 base.cam.hprInterval(1.5, old_hpr, blendType='easeInOut'),
@@ -985,9 +1066,9 @@ class World(ECSWorld, DirectObject):
             base.transitions.getFadeOutIval(3.0),
         ).start()
 
-    def fill_map(self):
+    def fill_map(self, v=1):
         terrain = self.terrain[Terrain]
-        terrain._sat_img.fill(1)
+        terrain._sat_img.fill(v)
         terrain._sat_tex.load(terrain._sat_img)
 
     def paint_at(self, pos):
