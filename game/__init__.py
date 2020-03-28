@@ -2,6 +2,7 @@ from direct.showbase.ShowBase import ShowBase
 from wecs.panda3d.core import ECSShowBase
 from direct.gui.OnscreenText import OnscreenText
 from direct.gui.DirectButton import DirectButton
+import direct.gui.DirectGuiGlobals as DGG
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func, LerpFunctionInterval
 from panda3d import core
@@ -66,10 +67,23 @@ class Game(ECSShowBase):
         scale=0.05
         y = 0.51
         btns = []
-        btns.append(DirectButton(text='start.', command=self.start_game, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y), scale=scale, text_fg=text_fg, relief=None))
-        btns.append(DirectButton(text='windowed.' if is_fullscreen else 'fullscreen.', command=self.toggle_fullscreen, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*1), scale=scale, text_fg=text_fg, relief=None))
-        btns.append(DirectButton(text='leave.', command=sys.exit, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*2), scale=scale, text_fg=text_fg, relief=None))
+        btns.append(DirectButton(text='start.', command=self.start_game, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
+        btns.append(DirectButton(text='windowed.' if is_fullscreen else 'fullscreen.', command=self.toggle_fullscreen, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*1), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
+        btns.append(DirectButton(text='leave.', command=sys.exit, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*2), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
         self.menu_buttons = btns
+
+        for i, btn in enumerate(btns):
+            btn.set_color_scale(text_fg)
+            btn.bind(DGG.ENTER, self._focus_button, [i])
+            btn.bind(DGG.EXIT, self._unfocus_button, [i])
+
+    def _focus_button(self, i, param):
+        btn = self.menu_buttons[i]
+        btn.colorScaleInterval(0.2, (1, 1, 1, 1), blendType='easeInOut').start()
+
+    def _unfocus_button(self, i, param):
+        btn = self.menu_buttons[i]
+        btn.colorScaleInterval(0.2, (1, 1, 1, 0.6), blendType='easeInOut').start()
 
     def start_game(self):
         if self.starting:

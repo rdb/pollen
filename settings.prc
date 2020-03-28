@@ -20,3 +20,6 @@ background-color 0.6 1.0 1.4
 lod-fade-time 2.0
 
 bounds-type best
+
+text-default-font fonts/Nunito-Bold.ttf
+text-pixels-per-unit 64
