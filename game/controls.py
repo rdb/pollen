@@ -215,6 +215,8 @@ class PlayerController(System, DirectObject):
             elif speed_t < 0.2:
                 base.music[Music].play('peace')
 
+            base.player[Character]._state_actors['fly'].set_play_rate(speed_t*0.5+0.5, 'flap', partName='morphs')
+
             dir_rad = math.radians(obj.direction)
             obj.position = (
                 obj.position[0] - math.sin(dir_rad) * speed.current * dt,

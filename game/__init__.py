@@ -36,10 +36,14 @@ class Game(ECSShowBase):
             #TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 64, 1), scale=0.09),
             TerrainObject(self.terrain, model='models/butterfly.bam', position=(128, 60, 1), scale=0.2, shadeless=True, material=mat),
             Character(
-                play_rate=0.5,
                 state="fly",
                 states={
                     "fly": {"butterfly": "forward", "morphs": "flap"},
+                    "dance": {"butterfly": "dance", "morphs": "flap"},
+                },
+                play_rates={
+                    "fly": 0.5,
+                    "dance": 1.0,
                 },
                 subparts={
                     "butterfly": ["root", "butterfly.000", "butterfly.001", "butterfly.002", "butterfly.003", "butterfly.004", "butterfly.005", "butterfly.006", "butterfly.007", "butterfly.008", "butterfly.009", "butterfly.010", "butterfly.011", "butterfly.012", "butterfly.013", "butterfly.014", "butterfly.015", "butterfly.016", "butterfly.017", "butterfly.018", "butterfly.019", "butterfly.020", "butterfly.021", "butterfly.022", "butterfly.023", "butterfly.024", "butterfly.025", "butterfly.026", "butterfly.027", "butterfly.028", "butterfly.029", "butterfly.030", "butterfly.031", "butterfly.032", "butterfly.033", "butterfly.034", "butterfly.035", "butterfly.036", "butterfly.037", "butterfly.038", "butterfly.039", "butterfly.040", "butterfly.041", "butterfly.042", "butterfly.043", "butterfly.044", "butterfly.045", "butterfly.046", "butterfly.047", "butterfly.048", "butterfly.049", "butterfly.050", "butterfly.051", "butterfly.052", "butterfly.053", "butterfly.054", "butterfly.055", "butterfly.056", "butterfly.057", "butterfly.058", "butterfly.059", "butterfly.060", "butterfly.061", "butterfly.062", "butterfly.063"],
@@ -342,7 +346,11 @@ class Game(ECSShowBase):
                         "flower": ["petal", "petal.001", "petal.002", "petal.003", "petal.004", "petal.005", "petal.006", "petal.007"],
                         "vine": ["vine"],
                     },
-                    play_rate=2.5,
+                    play_rates={
+                        "locked": 2.5,
+                        "closed": 2.5,
+                        "open": 2.5,
+                    },
                 ),
                 SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c'], volume=1),
                 Collider(solid=core.CollisionSphere((0, 0, 1.25), 0.2), into_mask=0b01, tangible=False),

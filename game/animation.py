@@ -8,14 +8,15 @@ from direct.interval.IntervalGlobal import Sequence, Func
 @Component()
 class Character:
     state: str
-    play_rate: float = 1.0
 
     states: dict = field(default_factory=dict)
+    play_rates: dict = field(default_factory=dict)
     transitions: dict = field(default_factory=dict)
     subparts: dict = field(default_factory=dict)
 
     _state = None
     _state_paths: dict = field(default_factory=dict)
+    _state_actors: dict = field(default_factory=dict)
 
 
 class AnimationPlayer(System):
@@ -37,7 +38,7 @@ class AnimationPlayer(System):
 
             for part, anim in transition.items():
                 Sequence(
-                    char._actor.actor_interval(anim, partName=part, playRate=char.play_rate),
+                    char._actor.actor_interval(anim, partName=part, playRate=char.play_rates[new_state]),
                     Func(lambda: char._actor.stash()),
                     Func(lambda: char._state_paths[new_state].unstash()),
                 ).start()

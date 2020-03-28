@@ -240,6 +240,7 @@ class TerrainSystem(System):
                         actor = self.actor_states.get((obj.model, state))
                         if not actor:
                             print("Creating actor", obj.model, "in state", state)
+
                             actor = Actor(obj.model)
                             self.actor_states[(obj.model, state)] = actor
 
@@ -247,9 +248,11 @@ class TerrainSystem(System):
                                 actor.make_subpart(part, joints)
 
                             for part, anim in part_anims.items():
-                                actor.set_play_rate(char.play_rate, anim, partName=part)
+                                actor.set_play_rate(char.play_rates[state], anim, partName=part)
                                 actor.loop(anim, partName=part)
                                 #actor.pose(anim, -1, partName=part)
+
+                            char._state_actors[state] = actor
 
                         inst = actor.instance_under_node(model, state)
                         char._state_paths[state] = inst
