@@ -67,7 +67,7 @@ class Game(ECSShowBase):
         scale=0.05
         y = 0.51
         btns = []
-        btns.append(DirectButton(text='start.', command=self.start_game, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
+        btns.append(DirectButton(text='begin.', command=self.start_game, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
         btns.append(DirectButton(text='windowed.' if is_fullscreen else 'fullscreen.', command=self.toggle_fullscreen, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*1), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
         btns.append(DirectButton(text='leave.', command=sys.exit, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*2), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
         self.menu_buttons = btns
