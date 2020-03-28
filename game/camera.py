@@ -40,7 +40,7 @@ class CameraSystem(System):
         cam_node = base.cam.node()
         camera._lens = cam_node.get_lens()
         #camera._lens.set_fov(camera.fov)
-        camera._lens.set_far(camera.far)
+        #camera._lens.set_far(camera.far)
         #camera._root = target_obj._root.attach_new_node(cam_node)
         camera._root = base.camera
         camera._root.wrt_reparent_to(target_obj._root)

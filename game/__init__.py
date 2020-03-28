@@ -42,15 +42,23 @@ class Game(ShowBase):
         self.quality_menu.show()
 
     def setup_high(self):
+        base.camLens.set_far(128)
+        core.load_prc_file_data("", "lod-fade-time 2.0")
         self.setup(QUALITY_HIGH)
 
     def setup_medium(self):
+        base.camLens.set_far(125)
+        core.load_prc_file_data("", "lod-fade-time 2.0")
         self.setup(QUALITY_MEDIUM)
 
     def setup_low(self):
+        base.camLens.set_far(100)
+        core.load_prc_file_data("", "lod-fade-time 1.5")
         self.setup(QUALITY_LOW)
 
     def setup_potato(self):
+        base.camLens.set_far(75)
+        core.load_prc_file_data("", "lod-fade-time 1.0")
         self.setup(QUALITY_POTATO)
 
     def setup(self, quality):
