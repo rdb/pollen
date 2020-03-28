@@ -101,7 +101,7 @@ class CollisionDetectionSystem(System):
                         self.player_obj = entity[TerrainObject]
 
         if collider.joint_from_mask and Character in entity:
-            actor = entity[Character]._actor
+            actor = entity[Character]._state_actors['fly']
             self.actor = actor
             root = actor.expose_joint(None, "butterfly", "root")
             self.root = root

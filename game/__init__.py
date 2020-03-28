@@ -56,7 +56,7 @@ class Game(ECSShowBase):
             ),
             Controls(acceleration=2.0),
             Speed(min=3.0, max=6.0),
-            Collider(solid=core.CollisionSphere((0, -1, 0), 2.5), from_mask=0b01, joint_from_mask=0b10, into_mask=0, tangible=False),
+            Collider(solid=core.CollisionSphere((0, 0.5, 0), 2), from_mask=0b01, joint_from_mask=0b10, into_mask=0, tangible=False),
             name="player",
         )
 

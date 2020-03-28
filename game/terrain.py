@@ -254,7 +254,11 @@ class TerrainSystem(System):
 
                             char._state_actors[state] = actor
 
-                        inst = actor.instance_under_node(model, state)
+                        if entity._uid.name == 'player':
+                            actor.reparent_to(model)
+                            inst = actor
+                        else:
+                            inst = actor.instance_under_node(model, state)
                         char._state_paths[state] = inst
                         inst.stash()
 
