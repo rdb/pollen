@@ -151,7 +151,14 @@ class PlayerController(System, DirectObject):
                     base.win.move_pointer(0, base.win.get_x_size() // 2, base.win.get_y_size() // 2)
 
                 self.last_ptr = ptr
-            elif sys.platform != 'win32':
+            elif sys.platform == 'win32':
+                if self.last_ptr:
+                    ptr = self.last_ptr
+                    lean = ptr.x - base.win.get_x_size() / 2
+                    lean_norm = (lean / base.win.get_x_size()) * 2
+                    elevate = ((ptr.y / base.win.get_y_size()) - 0.5) * 2
+                    input.set(lean_norm, -elevate)
+            else:
                 self.last_ptr = None
 
             boost_input = 0.0
