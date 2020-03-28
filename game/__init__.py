@@ -562,7 +562,7 @@ class Game(ECSShowBase):
         sky.set_depth_test(False)
         sky.reparent_to(base.cam)
         sky.set_compass()
-        sky.set_scale(3)
+        sky.set_scale(5)
         sky.set_shader_off(10)
         sky.set_light_off(10)
         sky.set_color_scale((0.7, 0.8, 1.0, 1.0))
