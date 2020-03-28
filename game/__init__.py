@@ -45,13 +45,13 @@ class Game(ShowBase):
             ('begin.', self.start_game),
             ('no music.', self.toggle_music),
             ('window.' if is_fullscreen else 'fullscreen.', self.toggle_fullscreen),
-            ('leave.', sys.exit),
+            ('leave.', self.stop_game),
         ])
 
         self.pause_menu = Menu('paused.', [
             ('resume.', self.resume),
             ('no music.', self.toggle_music),
-            ('stop.', sys.exit),
+            ('stop.', self.stop_game),
         ])
 
         base.paused = False
@@ -71,6 +71,13 @@ class Game(ShowBase):
         self.music_on = True
 
         self.main_menu.show()
+
+    def stop_game(self):
+        self.main_menu.hide()
+        self.pause_menu.hide()
+        base.transitions.setFadeColor(0, 0, 0)
+        base.transitions.getFadeOutIval(1.0).start()
+        taskMgr.doMethodLater(1.5, lambda task: sys.exit(), 'exit')
 
     def start_game(self):
         if self.starting:
@@ -136,12 +143,12 @@ class Game(ShowBase):
             print("Disabling fullscreen")
             size = core.WindowProperties.get_default().size
             self.win.request_properties(core.WindowProperties(fullscreen=False, origin=(-2, -2), size=size))
-            self.main_menu.buttons[3]['text'] = 'fullscreen.'
+            self.main_menu.buttons[2]['text'] = 'fullscreen.'
         else:
             print("Enabling fullscreen")
             size = self.pipe.get_display_width(), self.pipe.get_display_height()
             self.win.request_properties(core.WindowProperties(fullscreen=True, size=size))
-            self.main_menu.buttons[3]['text'] = 'window.'
+            self.main_menu.buttons[2]['text'] = 'window.'
 
     def toggle_music(self):
         if self.music_on:

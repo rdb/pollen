@@ -5,6 +5,9 @@ from panda3d import core
 from direct.interval.IntervalGlobal import Sequence, Func
 
 
+FADE_TIME = 1.0
+
+
 class Menu:
     def __init__(self, title, button_defs):
         self.root = base.a2dBottomLeft.attach_new_node("menu")
@@ -42,7 +45,7 @@ class Menu:
     def show(self):
         self.root.set_color_scale((1, 1, 1, 0))
         self.root.unstash()
-        self.root.colorScaleInterval(1.5, (1, 1, 1, 1)).start()
+        self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 1)).start()
 
     def hide(self):
-        Sequence(self.root.colorScaleInterval(1.5, (1, 1, 1, 0)), Func(self.root.stash)).start()
+        Sequence(self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 0)), Func(self.root.stash)).start()
