@@ -10,6 +10,7 @@ from .animation import Character
 from .audio import Music
 
 import math
+import sys
 
 
 RESPONSIVENESS = 1.5
@@ -150,7 +151,7 @@ class PlayerController(System, DirectObject):
                     base.win.move_pointer(0, base.win.get_x_size() // 2, base.win.get_y_size() // 2)
 
                 self.last_ptr = ptr
-            else:
+            elif sys.platform != 'win32':
                 self.last_ptr = None
 
             boost_input = 0.0
