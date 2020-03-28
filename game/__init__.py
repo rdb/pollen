@@ -144,6 +144,8 @@ class Game(ShowBase):
 
         #self.world.activate()
         self.started = True
+        base.graphicsEngine.render_frame()
+        base.graphicsEngine.render_frame()
         Sequence(
             Wait(0.5),
             Parallel(
