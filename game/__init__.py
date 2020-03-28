@@ -17,7 +17,7 @@ from .collision import Collider, GeomCollider, CollisionDetectionSystem
 from .audio import SfxPlayer, Music, Listener, AudioSystem
 
 
-PAINT_THRESHOLD = 0.84
+PAINT_THRESHOLD = 0.78
 
 
 class Game(ECSShowBase):
