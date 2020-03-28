@@ -898,11 +898,11 @@ class World(ECSWorld, DirectObject):
     def toggle_minimap(self):
         if not self.minimap.is_hidden():
             self.minimap.hide()
-            self.taskMgr.remove('update-minimap')
+            base.taskMgr.remove('update-minimap')
             return
 
         self.minimap.show()
-        self.taskMgr.add(self._update_minimap, 'update-minimap')
+        base.taskMgr.add(self._update_minimap, 'update-minimap')
 
     def _update_minimap(self, task):
         pos = self.player[TerrainObject].position
