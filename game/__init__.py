@@ -28,6 +28,8 @@ class Game(ShowBase):
         ShowBase.__init__(self)
         self.disable_mouse()
 
+        self.assume_gamepad = False
+
         DGG.setDefaultRolloverSound(loader.load_sfx('sfx/ui-a.ogg'))
         DGG.setDefaultClickSound(loader.load_sfx('sfx/ui-b.ogg'))
 
@@ -40,6 +42,35 @@ class Game(ShowBase):
             ('none.', self.setup_potato),
         ])
         self.quality_menu.show()
+
+        self.gamepads = set()
+
+        for dev in self.devices.get_devices(core.InputDevice.DeviceClass.gamepad):
+            self._device_connected(dev)
+        self.assume_gamepad = False
+
+        self.accept('connect-device', self._device_connected)
+        self.accept('disconnect-device', self._device_disconnected)
+
+    def _device_connected(self, device):
+        if device.device_class == core.InputDevice.DeviceClass.gamepad and device not in self.gamepads:
+            print("Detected", device)
+            self.gamepads.add(device)
+            base.attach_input_device(device, "gamepad")
+
+            # User plugged in gamepad during play, assume they intend to use it
+            self.assume_gamepad = True
+            messenger.send("switch-gamepad-controls")
+
+    def _device_disconnected(self, device):
+        if device in self.gamepads:
+            print("Disconnected", device)
+            self.gamepads.discard(device)
+            base.detach_input_device(device)
+
+            if not self.gamepads:
+                self.assume_gamepad = False
+                messenger.send("switch-mouse-controls")
 
     def setup_high(self):
         base.camLens.set_far(128)
@@ -97,12 +128,13 @@ class Game(ShowBase):
         self.world = World()
 
         self.accept('f12', self.screenshot)
-        self.accept('1', self.oobeCull)
+        #self.accept('1', self.oobeCull)
         self.starting = False
         self.started = False
         self.music_on = True
 
         self.main_menu.show()
+        self.accept('gamepad-start', self.start_game)
 
         self.setBackgroundColor((0.6, 1.0, 1.4, 1.0))
 
@@ -116,6 +148,8 @@ class Game(ShowBase):
     def start_game(self):
         if self.starting:
             return
+
+        self.ignore('gamepad-start')
 
         self.starting = True
 
@@ -162,10 +196,12 @@ class Game(ShowBase):
         #self.accept('2', self.world.press_2)
         #self.accept('3', self.world.press_3)
         #self.accept('4', self.world.ending)
-        self.accept('p', self.world.print_pos)
+        #self.accept('p', self.world.print_pos)
 
         self.accept('pause', self.pause)
         self.accept('escape', self.pause)
+        self.accept('gamepad-back', self.pause)
+        self.accept('gamepad-start', self.resume)
 
     def pause(self):
         if self.paused:
@@ -174,9 +210,21 @@ class Game(ShowBase):
         self.paused = True
         self.pause_menu.show()
 
+        self.win.request_properties(core.WindowProperties(
+            mouse_mode=core.WindowProperties.M_absolute,
+            cursor_hidden=False,
+        ))
+
     def resume(self):
-        self.pause_menu.hide()
-        self.paused = False
+        if self.paused:
+            self.pause_menu.hide()
+            self.paused = False
+
+            # Switch to whatever method was used when navigating the UI
+            if self.assume_gamepad:
+                messenger.send('switch-gamepad-controls')
+            else:
+                messenger.send('switch-mouse-controls')
 
     def toggle_fullscreen(self):
         is_fullscreen = self.win.get_properties().fullscreen

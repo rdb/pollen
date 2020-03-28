@@ -43,17 +43,12 @@ class PlayerController(System, DirectObject):
 
         base.win.request_properties(core.WindowProperties(mouse_mode=core.WindowProperties.M_confined))
 
-        self.gamepads = set()
-
-        for dev in base.devices.get_devices(core.InputDevice.DeviceClass.gamepad):
-            self._device_connected(dev, switch=False)
-
-        base.accept('connect-device', self._device_connected)
-        base.accept('disconnect-device', self._device_disconnected)
-
         self._control_mode = 'mouse'
         self._current_vec = core.Vec2(0)
         self._speed_target = 0.0
+
+        self.accept('switch-mouse-controls', self.ensure_control_mode, ['mouse', True])
+        self.accept('switch-gamepad-controls', self.ensure_control_mode, ['gamepad', True])
 
     def init_entity(self, filter_name, entity):
         controls = entity[Controls]
@@ -64,6 +59,9 @@ class PlayerController(System, DirectObject):
         for key in 'mouse1', 'shift', 'gamepad-ltrigger', 'gamepad-rtrigger', 'gamepad-lshoulder', 'gamepad-rshoulder', 'gamepad-face_a', 'gamepad-lgrip', 'gamepad-rgrip', 'gamepad-lstick', 'gamepad-rstick':
             self.accept(key, self._button_pressed, [entity, 'forward'])
             self.accept(key + '-up', self._button_released, [entity, 'forward'])
+
+        if base.assume_gamepad:
+            self.ensure_control_mode('gamepad')
 
     def destroy_entity(self, filter_name, entity, components={}):
         controls = components.get(Controls)
@@ -78,47 +76,33 @@ class PlayerController(System, DirectObject):
         if Speed in entity:
             entity[Speed].current = 0.0
 
-    def _device_connected(self, device, switch=True):
-        if device.device_class == core.InputDevice.DeviceClass.gamepad and device not in self.gamepads:
-            print("Detected", device)
-            self.gamepads.add(device)
-            base.attach_input_device(device, "gamepad")
-
-            if switch:
-                self.ensure_control_mode("gamepad")
-
-    def _device_disconnected(self, device):
-        if device in self.gamepads:
-            print("Disconnected", device)
-            self.gamepads.discard(device)
-            base.detach_input_device(device)
-
-            if not self.gamepads:
-                self.ensure_control_mode("mouse")
-
     def _button_pressed(self, entity, action):
-        controls = entity[Controls]
-        controls._states[action] = 1.0
+        if base.started and not base.paused:
+            controls = entity[Controls]
+            controls._states[action] = 1.0
 
     def _button_released(self, entity, action):
         controls = entity[Controls]
         controls._states[action] = 0.0
 
-    def ensure_control_mode(self, mode):
-        if mode == self._control_mode:
+    def ensure_control_mode(self, mode, force=False):
+        if mode == self._control_mode and not force:
             return
+
+        if mode != self._control_mode:
+            print("Switched to", mode, "controls")
 
         self._control_mode = mode
         base.win.move_pointer(0, base.win.get_x_size() // 2, base.win.get_y_size() // 2)
 
-        print("Switched to", mode, "controls")
-
         if mode == 'mouse':
+            base.assume_gamepad = False
             base.win.request_properties(core.WindowProperties(
                 mouse_mode=core.WindowProperties.M_confined,
                 cursor_hidden=False,
             ))
         else:
+            base.assume_gamepad = True
             base.win.request_properties(core.WindowProperties(
                 mouse_mode=core.WindowProperties.M_absolute,
                 cursor_hidden=True,
@@ -163,7 +147,7 @@ class PlayerController(System, DirectObject):
 
             boost_input = 0.0
 
-            for gamepad in self.gamepads:
+            for gamepad in base.gamepads:
                 x_axis = gamepad.find_axis(core.InputDevice.Axis.right_x)
                 y_axis = gamepad.find_axis(core.InputDevice.Axis.right_y)
                 z_axis = gamepad.find_axis(core.InputDevice.Axis.right_trigger)
