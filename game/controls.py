@@ -72,7 +72,7 @@ class PlayerController(System, DirectObject):
         del controls._states
 
         self.ignore_all()
-        base.music[Music].play('peace')
+        base.world.music[Music].play('peace')
 
         if Speed in entity:
             entity[Speed].current = 0.0
@@ -198,7 +198,7 @@ class PlayerController(System, DirectObject):
 
             self._current_vec = cur
 
-            if (core.Vec2(base.dolmen[TerrainObject].position[0], base.dolmen[TerrainObject].position[1]) - core.Vec2(base.player[TerrainObject].position[0], base.player[TerrainObject].position[1])).length_squared() < 600:
+            if (core.Vec2(base.world.dolmen[TerrainObject].position[0], base.world.dolmen[TerrainObject].position[1]) - core.Vec2(base.world.player[TerrainObject].position[0], base.world.player[TerrainObject].position[1])).length_squared() < 600:
                 self._speed_target = speed.min
             elif controls._states['forward'] and base.cam.parent.name != 'dolly':
                 self._speed_target = speed.max
@@ -223,11 +223,11 @@ class PlayerController(System, DirectObject):
 
             speed_t = (speed.current - speed.min) / (speed.max - speed.min)
             if speed_t > 0.8:
-                base.music[Music].play('chase')
+                base.world.music[Music].play('chase')
             elif speed_t < 0.2:
-                base.music[Music].play('peace')
+                base.world.music[Music].play('peace')
 
-            base.player[Character]._state_actors['fly'].set_play_rate(speed_t*0.5+0.5, 'flap', partName='morphs')
+            base.world.player[Character]._state_actors['fly'].set_play_rate(speed_t*0.5+0.5, 'flap', partName='morphs')
 
             dir_rad = math.radians(obj.direction)
             obj.position = (

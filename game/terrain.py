@@ -155,6 +155,7 @@ class TerrainSystem(System):
         grass_root.set_shader_input("terrainmap", ntex)
         render.set_shader_input("windmap", component._wind_map)
         grass_root.set_material(mat)
+        grass_root.set_shader_input("player", 0, 0, 0)
 
         render.set_shader_input("satmap", component._sat_tex)
 
