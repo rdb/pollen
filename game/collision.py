@@ -35,6 +35,7 @@ class CollisionDetectionSystem(System):
         System.__init__(self)
 
         self.traverser = core.CollisionTraverser()
+        #self.traverser.set_respect_prev_transform(True)
         #self.traverser.show_collisions(base.render)
 
         self.handler = core.CollisionHandlerPusher()
@@ -83,8 +84,7 @@ class CollisionDetectionSystem(System):
         cnode.set_from_collide_mask(collider.from_mask)
         cnode.set_into_collide_mask(collider.into_mask)
         cpath = path.attach_new_node(cnode)
-        #if Camera in entity:
-        #    cpath.show()
+        #cpath.show()
 
         cnode.set_python_tag('entity', entity)
 

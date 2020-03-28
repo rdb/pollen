@@ -252,7 +252,7 @@ class TerrainSystem(System):
             (pos[1] * component._scale.y) % 1.0,
         )
         height = col.w * component._scale.z
-        obj._root.set_pos(pos[0], pos[1], pos[2] + height)
+        obj._root.set_fluid_pos(pos[0], pos[1], pos[2] + height)
         obj._root.get_child(0).set_scale(obj.scale)
         obj._root.set_h(obj.direction)
 
