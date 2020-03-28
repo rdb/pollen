@@ -1,4 +1,5 @@
 from wecs.panda3d.core import ECSShowBase
+from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func
 from panda3d.core import load_prc_file
 from panda3d import core
 import simplepbr
@@ -14,6 +15,9 @@ from .general import Speed
 from .animation import Character, AnimationPlayer
 from .collision import Collider, GeomCollider, CollisionDetectionSystem
 from .audio import SfxPlayer, Music, Listener, AudioSystem
+
+
+PAINT_THRESHOLD = 0.84
 
 
 class Game(ECSShowBase):
@@ -542,6 +546,8 @@ class Game(ECSShowBase):
 
         self.accept('f12', self.screenshot)
         self.accept('1', self.oobeCull)
+        self.accept('2', self.press_2)
+        self.accept('3', self.press_3)
         self.accept('p', self.print_pos)
 
         self.accept('player-into-flower', self.handle_collision)
@@ -637,6 +643,8 @@ class Game(ECSShowBase):
 
         self.accept('m', self.toggle_minimap)
 
+        self._goodenough_activated = False
+
         #for flower in self.flowers:
         #    self.paint_at(flower[TerrainObject].position)
 
@@ -658,6 +666,16 @@ class Game(ECSShowBase):
     def print_pos(self):
         pos = self.player[TerrainObject].position
         print('            ' + str((pos[0], pos[1], 0)) + ',')
+
+    def press_2(self):
+        for flower in self.flowers:
+            self.paint_at(flower[TerrainObject].position)
+
+        terrain = self.terrain[Terrain]
+
+    def press_3(self):
+        self.enough_paint()
+        terrain = self.terrain[Terrain]
 
     def handle_collision(self, entry):
         flower = entry.into_node.get_python_tag('entity')
@@ -688,11 +706,48 @@ class Game(ECSShowBase):
 
         self.paint_at(pos)
 
+    def enough_paint(self):
+        if self._goodenough_activated:
+            return
+
+        self._goodenough_activated = True
+        print("Good enough!")
+        dolly = self.player[TerrainObject]._root.attach_new_node("dolly")
+        dolly.set_compass()
+        saved_xform = base.cam.get_transform()
+        saved_parent = base.cam.get_parent()
+        base.cam.wrt_reparent_to(dolly)
+
+        dolmen_pos = self.hunebeds[0][TerrainObject]._root.get_pos()
+
+        pos = self.player[TerrainObject].position
+        if pos[1] < 110:
+            dolmen_pos.y -= 256
+
+        old_hpr = base.cam.get_hpr()
+        base.cam.look_at(render, dolmen_pos)
+        look_hpr = base.cam.get_hpr()
+        base.cam.set_hpr(old_hpr)
+
+        Sequence(
+            Parallel(
+                dolly.posInterval(3, (0, 0, 10), blendType='easeInOut'),
+                base.cam.hprInterval(3, look_hpr, blendType='easeInOut'),
+            ),
+            Wait(2.0),
+            Parallel(
+                dolly.posInterval(1.5, (0, 0, 0), blendType='easeInOut'),
+                base.cam.hprInterval(1.5, old_hpr, blendType='easeInOut'),
+            ),
+            Func(lambda: (base.cam.reparent_to(saved_parent) or base.cam.set_transform(saved_xform))),
+            ).start()
+
     def paint_at(self, pos):
         terrain = self.terrain[Terrain]
         bound = terrain._sat_img.get_x_size() - 1
 
-        num_steps = int(math.ceil(2.5 / globalClock.dt))
+        #num_steps = int(math.ceil(2.5 / globalClock.dt))
+        num_steps = 80
         per_step = 0.333 / num_steps
 
         point = pos[0] * terrain._scale.x * bound, (bound - pos[1] * terrain._scale.y * bound)
@@ -748,6 +803,9 @@ class Game(ECSShowBase):
 
             if task.get_elapsed_frames() < num_steps:
                 return task.cont
+            else:
+                if terrain._sat_img.get_average_gray() >= PAINT_THRESHOLD:
+                    self.enough_paint()
 
         taskMgr.add(paint_more)
 

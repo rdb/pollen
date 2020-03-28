@@ -182,13 +182,14 @@ class PlayerController(System, DirectObject):
                 delta /= dist
                 cur += delta * min(dt * RESPONSIVENESS, dist)
 
-            base.cam.set_z(cur.y)
-            obj.direction -= cur.x * 0.5 * controls.turn_speed * dt
-            base.cam.set_x(cur.x * abs(cur.x) * 1.5)
+            if base.cam.parent.name != "dolly":
+                base.cam.set_z(cur.y)
+                base.cam.set_x(cur.x * abs(cur.x) * 1.5)
+                obj.direction -= cur.x * 0.5 * controls.turn_speed * dt
 
             self._current_vec = cur
 
-            if controls._states['forward']:
+            if controls._states['forward'] and base.cam.parent.name != 'dolly':
                 self._speed_target = speed.max
             else:
                 target_speed = boost_input * (speed.max - speed.min) + speed.min

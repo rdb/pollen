@@ -67,7 +67,8 @@ class CameraSystem(System):
                     t = smoothstep(t)
                     fov = t * camera.fast_fov + (1 - t) * fov
 
-            camera._lens.set_fov(fov)
-            h = base.cam.get_h()
-            base.cam.look_at(camera._root.get_parent(), (0, 0, 0))
-            base.cam.set_h(h)
+            if base.cam.parent.name != "dolly":
+                camera._lens.set_fov(fov)
+                h = base.cam.get_h()
+                base.cam.look_at(camera._root.get_parent(), (0, 0, 0))
+                base.cam.set_h(h)
