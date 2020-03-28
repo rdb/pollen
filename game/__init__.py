@@ -13,6 +13,12 @@ from .menu import Menu
 from .world import World
 
 
+QUALITY_HIGH = 3
+QUALITY_MEDIUM = 2
+QUALITY_LOW = 1
+QUALITY_POTATO = 0
+
+
 class Game(ShowBase):
     def __init__(self):
         main_dir = core.ExecutionEnvironment.get_environment_variable("MAIN_DIR")
@@ -25,19 +31,31 @@ class Game(ShowBase):
         DGG.setDefaultRolloverSound(loader.load_sfx('sfx/ui-a.ogg'))
         DGG.setDefaultClickSound(loader.load_sfx('sfx/ui-b.ogg'))
 
-        mat = core.Material()
-        mat.twoside = True
-        mat.roughness = 1
-        mat.base_color = (1, 1, 1, 1)
+        base.setBackgroundColor((0, 0, 0, 1))
 
-        #self.flower = Actor('assets/models/flower.bam')
-        #self.flower.reparent_to(render)
-        #self.flower.set_scale(0.5)
-        #self.flower.set_material(mat, 100)
-        #self.flower.loop('closed_idle')
-        #self.flower.set_pos((251.887-256+3, 43.6127-5, 8.90506))
-        #self.flower.set_fog_off(100)
-        #self.flower.set_shader_off(100)
+        self.quality_menu = Menu('quality.', [
+            ('high.', self.setup_high),
+            ('medium.', self.setup_medium),
+            ('low.', self.setup_low),
+            ('potato.', self.setup_potato),
+        ])
+        self.quality_menu.show()
+
+    def setup_high(self):
+        self.setup(QUALITY_HIGH)
+
+    def setup_medium(self):
+        self.setup(QUALITY_MEDIUM)
+
+    def setup_low(self):
+        self.setup(QUALITY_LOW)
+
+    def setup_potato(self):
+        self.setup(QUALITY_POTATO)
+
+    def setup(self, quality):
+        self.quality_menu.hide()
+        base.quality = quality
 
         is_fullscreen = self.win.get_properties().fullscreen
 
@@ -71,6 +89,8 @@ class Game(ShowBase):
         self.music_on = True
 
         self.main_menu.show()
+
+        self.setBackgroundColor((0.6, 1.0, 1.4, 1.0))
 
     def stop_game(self):
         self.main_menu.hide()
