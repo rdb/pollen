@@ -41,7 +41,7 @@ void main() {
     v_color.a = 1;
 
     if (p3d_Color.g > 0.75) {
-      v_color.a = sat - mod(v_position.x, 0.5);
+      v_color.a = sat + 0.5 - mod(v_position.x + v_position.y * 10 + v_position.z * 100, 0.5);
     }
 
 
