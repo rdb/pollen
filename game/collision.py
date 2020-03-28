@@ -155,18 +155,20 @@ class CollisionDetectionSystem(System):
         #cpath.hide()
 
     def _enter_swarm(self, entry):
-        if entry.get_into_node().name == 'flower':
+        name = entry.get_into_node().name
+        if name == 'flower':
             return
 
         if self._times_swarm_activated == 0:
-            print("Activating swarm colliders")
+            print("Activating swarm colliders due to proximity of", name)
             for cpath in self.joint_colliders:
                 self.traverser.add_collider(cpath, self.handler)
 
         self._times_swarm_activated += 1
 
     def _leave_swarm(self, entry):
-        if entry.get_into_node().name == 'flower':
+        name = entry.get_into_node().name
+        if name == 'flower':
             return
 
         self._times_swarm_activated -= 1

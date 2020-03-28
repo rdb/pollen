@@ -181,8 +181,8 @@ class World(ECSWorld, DirectObject):
                 material=mat,
                 wraparound=100,
             ),
-            Collider(into_mask=0b01, tangible=False),
-            GeomCollider(into_mask=0b10),
+            #Collider(into_mask=0b01, tangible=False),
+            #GeomCollider(into_mask=0b10),
             name="dolmen",
         )
 
