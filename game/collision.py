@@ -4,6 +4,8 @@ from dataclasses import field
 
 from .terrain import TerrainObject
 from .animation import Character
+from .camera import Camera
+from .controls import Controls
 
 
 GRAVITY = 1.0
@@ -42,6 +44,8 @@ class CollisionDetectionSystem(System):
         self.handler.add_out_pattern('%fn-outof-any')
         self.handler.horizontal = False
 
+        self.queue = core.CollisionHandlerQueue()
+
         base.accept('player-into-any', self._enter_swarm)
         base.accept('player-outof-any', self._leave_swarm)
 
@@ -55,7 +59,12 @@ class CollisionDetectionSystem(System):
         self._times_swarm_activated = 0
 
     def init_entity(self, filter, entity):
-        path = entity[TerrainObject]._root
+        if TerrainObject in entity:
+            path = entity[TerrainObject]._root
+        elif Camera in entity:
+            path = entity[Camera]._root
+        else:
+            path = None
 
         if filter == 'geomcollider':
             path.get_child(0).set_collide_mask(entity[GeomCollider].into_mask)
@@ -74,16 +83,22 @@ class CollisionDetectionSystem(System):
         cnode.set_from_collide_mask(collider.from_mask)
         cnode.set_into_collide_mask(collider.into_mask)
         cpath = path.attach_new_node(cnode)
-        #cpath.show()
+        #if Camera in entity:
+        #    cpath.show()
 
         cnode.set_python_tag('entity', entity)
 
         if collider.from_mask:
-            self.traverser.add_collider(cpath, self.handler)
+            if entity._uid.name == "camera":
+                self.traverser.add_collider(cpath, self.queue)
+            else:
+                self.traverser.add_collider(cpath, self.handler)
 
-            if collider.tangible:
-                self.handler.add_collider(cpath, path)
-                self.player_obj = entity[TerrainObject]
+                if collider.tangible:
+                    self.handler.add_collider(cpath, path)
+
+                    if TerrainObject in entity:
+                        self.player_obj = entity[TerrainObject]
 
         if collider.joint_from_mask and Character in entity:
             actor = entity[Character]._actor
@@ -162,3 +177,20 @@ class CollisionDetectionSystem(System):
             z_delta = new_pos[2] - old_pos[2]
             gravity = globalClock.dt * GRAVITY
             self.player_obj.position = (new_pos[0], new_pos[1], max(pos[2] + z_delta - gravity, 1.0))
+
+        if self.queue.get_num_entries() > 0:
+            self.queue.sort_entries()
+            best_entry = self.queue.get_entry(0)
+            best_entry_z = best_entry.get_surface_point(base.cam.get_parent()).get_z()
+
+            for entry in list(self.queue.entries)[1:]:
+                entry_z = entry.get_surface_point(base.cam.get_parent()).get_z()
+                if entry_z > best_entry_z:
+                    best_entry = entry
+                    best_entry_z = entry_z
+
+            rock_z = best_entry_z + 2
+            diff = rock_z - base.cam.get_z()
+            base.player[Controls]._collision = diff
+        else:
+            base.player[Controls]._collision = 0.0

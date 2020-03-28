@@ -54,6 +54,7 @@ class Game(ECSShowBase):
 
         camera = self.ecs_world.create_entity(
             Camera(target=self.player),
+            Collider(solid=core.CollisionSphere((0, 0, 0), 3), from_mask=0b10, tangible=False),
             Listener(),
             name="camera",
         )

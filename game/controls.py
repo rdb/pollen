@@ -27,6 +27,8 @@ class Controls:
 
     enabled: bool = True
 
+    _collision = 0.0
+
 
 class PlayerController(System, DirectObject):
     entity_filters = {
@@ -169,6 +171,9 @@ class PlayerController(System, DirectObject):
                     boost_input = z_axis.value
 
             input.y *= abs(input.y)
+
+            if controls._collision > input.y:
+                input.y = controls._collision
 
             cur = core.Vec2(self._current_vec)
             delta = input.xy - cur

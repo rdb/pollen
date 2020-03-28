@@ -68,3 +68,4 @@ class CameraSystem(System):
                     fov = t * camera.fast_fov + (1 - t) * fov
 
             camera._lens.set_fov(fov)
+            base.cam.look_at(camera._root.get_parent(), (0, 0, 0))
