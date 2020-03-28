@@ -803,9 +803,11 @@ class Game(ECSShowBase):
 
             if task.get_elapsed_frames() < num_steps:
                 return task.cont
-            else:
-                if terrain._sat_img.get_average_gray() >= PAINT_THRESHOLD:
-                    self.enough_paint()
+
+            gray = terrain._sat_img.get_average_gray()
+            print("%.1f %% pollinated" % (gray * 100))
+            if gray >= PAINT_THRESHOLD:
+                self.enough_paint()
 
         taskMgr.add(paint_more)
 
