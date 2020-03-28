@@ -139,7 +139,7 @@ class Game(ShowBase):
         Sequence(
             Wait(0.5),
             Parallel(
-                LerpFunctionInterval(base.camLens.set_fov, 2.0, fromData=base.camLens.get_fov(), toData=80, blendType='easeIn'),
+                LerpFunctionInterval(base.camLens.set_fov, 2.0, fromData=base.camLens.get_fov()[0], toData=80, blendType='easeIn'),
                 base.cam.hprInterval(2, hpr=(0, 0, 0), blendType="easeInOut"),
                 base.camera.hprInterval(2, hpr=camera_hpr, blendType="easeInOut"),
             ),
