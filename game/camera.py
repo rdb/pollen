@@ -68,7 +68,8 @@ class CameraSystem(System):
                     fov = t * camera.fast_fov + (1 - t) * fov
 
             if base.cam.parent.name != "dolly":
-                camera._lens.set_fov(fov)
+                if fov > 0:
+                    camera._lens.set_fov(fov)
                 h = base.cam.get_h()
                 base.cam.look_at(camera._root.get_parent(), (0, 0, 0))
                 base.cam.set_h(h)

@@ -43,11 +43,14 @@ class Game(ECSShowBase):
                 state="fly",
                 states={
                     "fly": {"butterfly": "forward", "morphs": "flap"},
-                    "dance": {"butterfly": "dance", "morphs": "flap"},
+                    "end": {"morphs": "flap"},
                 },
                 play_rates={
                     "fly": 0.5,
-                    "dance": 1.0,
+                    "end": 1.0,
+                },
+                transitions={
+                    ("fly", "end"): {"butterfly": "dance"},
                 },
                 subparts={
                     "butterfly": ["root", "butterfly.000", "butterfly.001", "butterfly.002", "butterfly.003", "butterfly.004", "butterfly.005", "butterfly.006", "butterfly.007", "butterfly.008", "butterfly.009", "butterfly.010", "butterfly.011", "butterfly.012", "butterfly.013", "butterfly.014", "butterfly.015", "butterfly.016", "butterfly.017", "butterfly.018", "butterfly.019", "butterfly.020", "butterfly.021", "butterfly.022", "butterfly.023", "butterfly.024", "butterfly.025", "butterfly.026", "butterfly.027", "butterfly.028", "butterfly.029", "butterfly.030", "butterfly.031", "butterfly.032", "butterfly.033", "butterfly.034", "butterfly.035", "butterfly.036", "butterfly.037", "butterfly.038", "butterfly.039", "butterfly.040", "butterfly.041", "butterfly.042", "butterfly.043", "butterfly.044", "butterfly.045", "butterfly.046", "butterfly.047", "butterfly.048", "butterfly.049", "butterfly.050", "butterfly.051", "butterfly.052", "butterfly.053", "butterfly.054", "butterfly.055", "butterfly.056", "butterfly.057", "butterfly.058", "butterfly.059", "butterfly.060", "butterfly.061", "butterfly.062", "butterfly.063"],
@@ -72,7 +75,7 @@ class Game(ECSShowBase):
         mat.roughness = 1
         mat.base_color = (1, 1, 1, 1)
 
-        hunebed = self.ecs_world.create_entity(
+        self.dolmen = self.ecs_world.create_entity(
             TerrainObject(
                 self.terrain,
                 model='models/hunebed.bam',
@@ -84,9 +87,44 @@ class Game(ECSShowBase):
             ),
             Collider(into_mask=0b01, tangible=False),
             GeomCollider(into_mask=0b10),
-            name="hunebed",
+            name="dolmen",
         )
-        self.hunebeds = [hunebed]
+
+        self.superflower = self.ecs_world.create_entity(
+            TerrainObject(
+                self.terrain,
+                model='models/superflower.bam',
+                position=(160.6078540733596, 234.90864229056726, 0),
+                #position=(120.64369917139119, 83.10867386895148, 0),
+                scale=0.75,
+                material=mat,
+            ),
+            Character(
+                state="locked",
+                states={
+                    "locked": {"flower": "closed_idle"},
+                    "closed": {"flower": "closed_idle"},
+                    "open": {"flower": ""},
+                },
+                transitions={
+                    ("locked", "closed"): {"vine": "vine"},
+                    ("locked", "open"): {"flower": "open", "vine": "vine"},
+                    ("closed", "open"): {"flower": "open"},
+                },
+                subparts={
+                    "flower": ["petal", "petal.001", "petal.002", "petal.003", "petal.004", "petal.005", "petal.006", "petal.007"],
+                    "vine": ["vine"],
+                },
+                play_rates={
+                    "locked": 2.5,
+                    "closed": 2.5,
+                    "open": 2.5,
+                },
+            ),
+            SfxPlayer(sounds=['flower-open-a', 'flower-open-b', 'flower-open-c', 'dance'], volume=1),
+            Collider(solid=core.CollisionTube((0, 0, 0), (0, 0, 3), 0.5), into_mask=0b11, tangible=True),
+            name="superflower",
+        )
 
         self.flowers = []
         for pos in [
@@ -548,6 +586,7 @@ class Game(ECSShowBase):
         self.accept('1', self.oobeCull)
         self.accept('2', self.press_2)
         self.accept('3', self.press_3)
+        self.accept('4', self.ending)
         self.accept('p', self.print_pos)
 
         self.accept('player-into-flower', self.handle_collision)
@@ -593,6 +632,17 @@ class Game(ECSShowBase):
         self.minimap.set_transparency(1)
         self.minimap.set_alpha_scale(0.75)
 
+        sz = 0.025
+        cm = core.CardMaker("dolmen")
+        cm.set_frame(-sz, sz, -sz, sz)
+        cm.set_color((0.5, 0.5, 0.5, 1))
+
+        pos = self.dolmen[TerrainObject].position
+        minimap_icon = self.minimap.attach_new_node(cm.generate())
+        minimap_icon.set_texture_off(10)
+        minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
+        minimap_icon.set_r(45)
+
         sz = 0.005
         cm = core.CardMaker("flower")
         cm.set_frame(-sz, sz, -sz, sz)
@@ -607,6 +657,17 @@ class Game(ECSShowBase):
             minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
             self.flower_icons[flower._uid] = minimap_icon
 
+        sz = 0.0075
+        cm = core.CardMaker("superflower")
+        cm.set_frame(-sz, sz, -sz, sz)
+        cm.set_color((0.9, 1.0, 0.0, 1))
+
+        pos = self.superflower[TerrainObject].position
+        minimap_icon = self.minimap.attach_new_node(cm.generate())
+        minimap_icon.set_texture_off(10)
+        minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
+        self.flower_icons[self.superflower._uid] = minimap_icon
+
         sz = 0.005
         cm = core.CardMaker("tree")
         cm.set_frame(-sz, sz, -sz, sz)
@@ -614,17 +675,6 @@ class Game(ECSShowBase):
 
         for tree in self.trees:
             pos = tree[TerrainObject].position
-            minimap_icon = self.minimap.attach_new_node(cm.generate())
-            minimap_icon.set_texture_off(10)
-            minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
-
-        sz = 0.03
-        cm = core.CardMaker("hunebed")
-        cm.set_frame(-sz, sz, -sz, sz)
-        cm.set_color((0.5, 0.5, 0.5, 1))
-
-        for hunebed in self.hunebeds:
-            pos = hunebed[TerrainObject].position
             minimap_icon = self.minimap.attach_new_node(cm.generate())
             minimap_icon.set_texture_off(10)
             minimap_icon.set_pos(pos[0] / 256 - 1, 0, pos[1] / 256)
@@ -647,6 +697,18 @@ class Game(ECSShowBase):
 
         #for flower in self.flowers:
         #    self.paint_at(flower[TerrainObject].position)
+
+        vine = self.superflower[Character]._state_actors['locked'].find('**/vine')
+        vine.set_color((188/430.0, 152/430.0, 101/430.0, 1.0), 1000)
+
+        vine = self.superflower[Character]._state_actors['closed'].find('**/vine')
+        vine.remove_node()
+
+        vine = self.superflower[Character]._state_actors['open'].find('**/vine')
+        vine.remove_node()
+
+        self.player[Character]._actor.loop('flap', partName='morphs')
+        self.player[Character]._state_actors['end'].hide()
 
     def toggle_minimap(self):
         if not self.minimap.is_hidden():
@@ -679,38 +741,61 @@ class Game(ECSShowBase):
 
     def handle_collision(self, entry):
         flower = entry.into_node.get_python_tag('entity')
+        self.pollinate_flower(flower)
 
+    def pollinate_flower(self, flower):
         if Character in flower:
             if flower[Character].state == 'open':
                 return
 
             flower[Character].state = 'open'
 
-        self.flower_icons[flower._uid].remove_node()
+        if flower._uid in self.flower_icons:
+            self.flower_icons[flower._uid].remove_node()
 
-        notes = set(['flower-open-a', 'flower-open-b', 'flower-open-c'])
-        notes.discard(self._last_note)
-        note = choice(list(notes))
-        flower[SfxPlayer].play(note)
-        self._last_note = note
+        if Collider in flower:
+            del flower[Collider]
+
+        if flower._uid.name == 'flower':
+            notes = set(['flower-open-a', 'flower-open-b', 'flower-open-c'])
+            notes.discard(self._last_note)
+            note = choice(list(notes))
+            flower[SfxPlayer].play(note)
+            self._last_note = note
+        elif flower._uid.name == 'superflower':
+            flower[SfxPlayer].play('flower-open-a')
+            flower[SfxPlayer].play('flower-open-b')
+            flower[SfxPlayer].play('flower-open-c')
 
         #self.player[Speed].current = 0.0
         #self.player[Controls].enabled = False
-
-        #self.player[TerrainObject]._root.hprInterval(4, (360, 0, 0), blendType='easeInOut').start()
-        self.num_flowers -= 1
-        print("%d flowers to go!" % (self.num_flowers))
 
         obj = flower[TerrainObject]
         pos = obj.position
 
         self.paint_at(pos)
 
+        #self.player[TerrainObject]._root.hprInterval(4, (360, 0, 0), blendType='easeInOut').start()
+        if flower._uid.name == "flower":
+            self.num_flowers -= 1
+
+            if not self._goodenough_activated:
+                print("%d flowers to go!" % (self.num_flowers))
+
+        elif flower._uid.name == "superflower":
+            # Superflower.
+            self.ending()
+
     def enough_paint(self):
         if self._goodenough_activated:
             return
-
         self._goodenough_activated = True
+
+        # Pollinate all remaining flowers.
+        for flower in self.flowers:
+            if Character in flower and flower[Character].state == 'closed':
+                self.pollinate_flower(flower)
+
         print("Good enough!")
         dolly = self.player[TerrainObject]._root.attach_new_node("dolly")
         dolly.set_compass()
@@ -718,16 +803,24 @@ class Game(ECSShowBase):
         saved_parent = base.cam.get_parent()
         base.cam.wrt_reparent_to(dolly)
 
-        dolmen_pos = self.hunebeds[0][TerrainObject]._root.get_pos()
+        dolmen_pos = self.dolmen[TerrainObject]._root.get_pos()
 
+        # Which way around is quicker?
         pos = self.player[TerrainObject].position
-        if pos[1] < 110:
+        if pos[1] < dolmen_pos[1] - 128:
             dolmen_pos.y -= 256
 
         old_hpr = base.cam.get_hpr()
+        base.cam.set_pos(base.cam.get_pos() + (0, 0, 10))
         base.cam.look_at(render, dolmen_pos)
         look_hpr = base.cam.get_hpr()
         base.cam.set_hpr(old_hpr)
+        base.cam.set_pos(base.cam.get_pos() - (0, 0, 10))
+
+        while look_hpr[0] > old_hpr[0] + 180:
+            look_hpr[0] -= 360
+        while look_hpr[0] < old_hpr[0] - 180:
+            look_hpr[0] += 360
 
         Sequence(
             Parallel(
@@ -740,7 +833,59 @@ class Game(ECSShowBase):
                 base.cam.hprInterval(1.5, old_hpr, blendType='easeInOut'),
             ),
             Func(lambda: (base.cam.reparent_to(saved_parent) or base.cam.set_transform(saved_xform))),
-            ).start()
+        ).start()
+
+        if Character in self.superflower:
+            self.superflower[Character].state = 'closed'
+
+        self.accept('player-into-superflower', self.handle_collision)
+
+    def ending(self):
+        self._goodenough_activated = True
+
+        if Controls in self.player:
+            del self.player[Controls]
+
+        pos = self.superflower[TerrainObject].position
+        pos = (pos[0], pos[1], 2.5)
+        self.player[TerrainObject].position = pos
+
+        pos = (pos[0], pos[1], self.superflower[TerrainObject]._root.get_z() + 2.5)
+        self.player[TerrainObject]._root.set_pos(pos)
+
+        self.player[Character].state = 'end'
+        self.superflower[SfxPlayer].play('dance')
+        self.player[Character]._actor.set_play_rate(0.5, 'flap', partName='morphs')
+
+        dolly = render.attach_new_node("dolly")
+        dolly.set_pos(pos[0], pos[1], pos[2] + 2.5)
+        saved_xform = base.cam.get_transform()
+        saved_parent = base.cam.get_parent()
+        base.cam.wrt_reparent_to(dolly)
+
+        old_hpr = base.cam.get_hpr()
+        look_hpr = core.VBase3(0, -30, 0)
+
+        while look_hpr[0] > old_hpr[0] + 180:
+            look_hpr[0] -= 360
+        while look_hpr[0] < old_hpr[0] - 180:
+            look_hpr[0] += 360
+
+        base.transitions.setFadeColor(1, 1, 1)
+        Sequence(
+            Parallel(
+                Sequence(Wait(2.0), Func(self.fill_map)),
+                base.cam.posInterval(3, (0, -10, 5), blendType='easeInOut'),
+                base.cam.hprInterval(4, look_hpr, blendType='easeInOut'),
+                dolly.scaleInterval(14, 1.5, blendType='easeInOut'),
+            ),
+            base.transitions.getFadeOutIval(3.0),
+        ).start()
+
+    def fill_map(self):
+        terrain = self.terrain[Terrain]
+        terrain._sat_img.fill(1)
+        terrain._sat_tex.load(terrain._sat_img)
 
     def paint_at(self, pos):
         terrain = self.terrain[Terrain]
@@ -804,10 +949,11 @@ class Game(ECSShowBase):
             if task.get_elapsed_frames() < num_steps:
                 return task.cont
 
-            gray = terrain._sat_img.get_average_gray()
-            print("%.1f %% pollinated" % (gray * 100))
-            if gray >= PAINT_THRESHOLD:
-                self.enough_paint()
+            if not self._goodenough_activated:
+                gray = terrain._sat_img.get_average_gray()
+                print("%.1f %% pollinated" % (gray * 100))
+                if gray >= PAINT_THRESHOLD:
+                    self.enough_paint()
 
         taskMgr.add(paint_more)
 

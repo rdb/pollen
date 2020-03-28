@@ -206,6 +206,9 @@ class CollisionDetectionSystem(System):
 
             rock_z = best_entry_z + 2
             diff = rock_z - base.cam.get_z()
-            base.player[Controls]._collision = diff
+
+            if Controls in base.player:
+                base.player[Controls]._collision = diff
         else:
-            base.player[Controls]._collision = 0.0
+            if Controls in base.player:
+                base.player[Controls]._collision = 0.0

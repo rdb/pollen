@@ -254,7 +254,8 @@ class TerrainSystem(System):
 
                             char._state_actors[state] = actor
 
-                        if entity._uid.name == 'player':
+                        if entity._uid.name == 'player' or entity._uid.name == 'superflower':
+                            # No instancing needed for singletons, and in fact breaks some stuff
                             actor.reparent_to(model)
                             inst = actor
                         else:

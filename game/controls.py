@@ -64,9 +64,18 @@ class PlayerController(System, DirectObject):
             self.accept(key, self._button_pressed, [entity, 'forward'])
             self.accept(key + '-up', self._button_released, [entity, 'forward'])
 
-    def destroy_entity(self, filter_name, entity):
-        controls = entity[Controls]
+    def destroy_entity(self, filter_name, entity, components={}):
+        controls = components.get(Controls)
+        if not controls:
+            return
+
         del controls._states
+
+        self.ignore_all()
+        base.music[Music].play('peace')
+
+        if Speed in entity:
+            entity[Speed].current = 0.0
 
     def _device_connected(self, device, switch=True):
         if device.device_class == core.InputDevice.DeviceClass.gamepad and device not in self.gamepads:
@@ -189,7 +198,9 @@ class PlayerController(System, DirectObject):
 
             self._current_vec = cur
 
-            if controls._states['forward'] and base.cam.parent.name != 'dolly':
+            if (core.Vec2(base.dolmen[TerrainObject].position[0], base.dolmen[TerrainObject].position[1]) - core.Vec2(base.player[TerrainObject].position[0], base.player[TerrainObject].position[1])).length_squared() < 600:
+                self._speed_target = speed.min
+            elif controls._states['forward'] and base.cam.parent.name != 'dolly':
                 self._speed_target = speed.max
             else:
                 target_speed = boost_input * (speed.max - speed.min) + speed.min

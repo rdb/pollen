@@ -117,7 +117,7 @@ class AudioSystem(System):
             pos = player._root.get_pos(self.audio3d.root)
             player._sfx[sound].set_3d_attributes(pos[0], pos[1], pos[2], 0, 0, 0)
 
-        print("Playing sound", sound)
+        #print("Playing sound", sound)
 
     def change_music(self, entity, old_song, new_song):
         music = entity[Music]

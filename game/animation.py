@@ -2,7 +2,7 @@ from wecs.core import Component, System, and_filter
 from panda3d import core
 from dataclasses import field
 
-from direct.interval.IntervalGlobal import Sequence, Func
+from direct.interval.IntervalGlobal import Sequence, Parallel, Func
 
 
 @Component()
@@ -28,7 +28,7 @@ class AnimationPlayer(System):
         old_state_def = char.states.get(old_state, {})
         new_state_def = char.states[new_state]
 
-        char._actor.stop()
+        #char._actor.stop()
         if old_state is not None:
             char._state_paths[old_state].stash()
 
