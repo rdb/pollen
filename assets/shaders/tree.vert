@@ -21,6 +21,7 @@ varying vec2 v_texcoord;
 varying vec3 v_normal;
 
 void main() {
+    vec3 wspos_model = p3d_ModelMatrix[3].xyz;
     vec3 wspos = (p3d_ModelMatrix * p3d_Vertex).xyz;
 
     float t = p3d_Vertex.z / 5;
@@ -34,14 +35,14 @@ void main() {
     v_normal = normalize(p3d_NormalMatrix * p3d_Normal);
     v_texcoord = vec2(0, 0);
 
-    float sat = texture2D(satmap, wspos.xy * scale.xy).r;
+    float sat = texture2D(satmap, wspos_model.xy * scale.xy).r;
     //v_color.rgb = mix(v_color.ggg, v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
     sat = (sat > 0.5) ? 1.0 : sat*2;
     v_color.rgb = mix(v_color.ggg * vec3(188/255.0, 152/255.0, 101/255.0), v_color.rgb, sat);
     v_color.a = 1;
 
     if (p3d_Color.g > 0.75) {
-      v_color.a = sat + 0.5 - mod(v_position.x + v_position.y * 10 + v_position.z * 100, 0.5);
+      v_color.a = sat + 0.25 - mod(v_position.x + v_position.y * 10 + v_position.z * 100, 0.5);
     }
 
 
