@@ -164,14 +164,14 @@ class TerrainSystem(System):
 
         grass_root.set_bin('background', 10)
 
-        if core.ConfigVariableBool("potato-mode", False):
+        if base.quality == 0:
             patch = loader.load_model("assets/models/patch-potato.bam")
         else:
             patch = loader.load_model("assets/models/patch.bam")
         patch_size = int(patch.get_tag('patch_size'))
 
         self._r_build_grass_octree(grass_root, patch, patch_size, component.size * 2)
-        grass_root.set_pos(-0.5 * component.size, -0.5 * component.size, 5)
+        grass_root.set_pos(-0.5 * component.size, -0.5 * component.size, 8)
 
         component._grass_root = grass_root
 

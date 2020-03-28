@@ -120,6 +120,7 @@ class World(ECSWorld, DirectObject):
 
     def finish_loading(self):
         self.terrain[Terrain]._wind_sound.play()
+        self.terrain[Terrain]._grass_root.set_z(5)
         self.fill_map(0)
 
         self.lone_flower[TerrainObject]._root.remove_node()

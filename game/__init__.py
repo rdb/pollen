@@ -37,7 +37,7 @@ class Game(ShowBase):
             ('high.', self.setup_high),
             ('medium.', self.setup_medium),
             ('low.', self.setup_low),
-            ('potato.', self.setup_potato),
+            ('none.', self.setup_potato),
         ])
         self.quality_menu.show()
 
@@ -78,7 +78,13 @@ class Game(ShowBase):
         base.cam.set_pos(0, 0, 10)
         base.cam.set_hpr(0, 5, 0)
 
-        simplepbr.init(msaa_samples=0, max_lights=2)
+        if base.quality >= QUALITY_HIGH:
+            samples = 8
+        elif base.quality >= QUALITY_MEDIUM:
+            samples = 4
+        else:
+            samples = 0
+        simplepbr.init(msaa_samples=samples, max_lights=2)
 
         self.world = World()
 
@@ -128,10 +134,15 @@ class Game(ShowBase):
         camera_hpr = base.camera.get_hpr()
         base.camera.set_hpr(old_hpr)
 
-        Parallel(
-            LerpFunctionInterval(base.camLens.set_fov, fromData=base.camLens.get_fov(), toData=80),
-            base.cam.hprInterval(2, hpr=(0, 0, 0), blendType="easeInOut"),
-            base.camera.hprInterval(2, hpr=camera_hpr, blendType="easeInOut"),
+        #self.world.activate()
+        self.started = True
+        Sequence(
+            Wait(0.5),
+            Parallel(
+                LerpFunctionInterval(base.camLens.set_fov, 2.0, fromData=base.camLens.get_fov(), toData=80, blendType='easeIn'),
+                base.cam.hprInterval(2, hpr=(0, 0, 0), blendType="easeInOut"),
+                base.camera.hprInterval(2, hpr=camera_hpr, blendType="easeInOut"),
+            ),
             Func(self.finish_starting),
         ).start()
 
