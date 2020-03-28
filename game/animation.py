@@ -1,4 +1,5 @@
 from wecs.core import Component, System, and_filter
+from panda3d import core
 from dataclasses import field
 
 from direct.interval.IntervalGlobal import Sequence, Func
@@ -14,6 +15,7 @@ class Character:
     subparts: dict = field(default_factory=dict)
 
     _state = None
+    _state_paths: dict = field(default_factory=dict)
 
 
 class AnimationPlayer(System):
@@ -25,38 +27,23 @@ class AnimationPlayer(System):
         old_state_def = char.states.get(old_state, {})
         new_state_def = char.states[new_state]
 
+        char._actor.stop()
+        if old_state is not None:
+            char._state_paths[old_state].stash()
+
         transition = char.transitions.get((old_state, new_state))
         if transition:
-            for part, anim in old_state_def.items():
-                if part not in new_state_def and part not in transition:
-                    char._actor.stop(anim, partName=part)
+            char._actor.unstash()
 
             for part, anim in transition.items():
-                loop_anim = new_state_def.get(part)
-                char._actor.set_play_rate(char.play_rate, anim, partName=part)
-                if loop_anim:
-                    char._actor.set_play_rate(char.play_rate, loop_anim, partName=part)
-                    Sequence(
-                        char._actor.actorInterval(anim, partName=part, playRate=char.play_rate),
-                        Func(lambda: char._actor.loop(loop_anim, partName=part)),
-                    ).start()
-                else:
-                    char._actor.actorInterval(anim, partName=part).start()
-
-            for part, anim in new_state_def.items():
-                if part not in transition:
-                    if part not in old_state_def or old_state_def[part] != anim:
-                        char._actor.set_play_rate(char.play_rate, anim, partName=part)
-                        char._actor.loop(anim, partName=part)
+                Sequence(
+                    char._actor.actor_interval(anim, partName=part, playRate=char.play_rate),
+                    Func(lambda: char._actor.stash()),
+                    Func(lambda: char._state_paths[new_state].unstash()),
+                ).start()
         else:
-            for part, anim in old_state_def.items():
-                if part not in new_state_def:
-                    char._actor.stop(anim, partName=part)
-
-            for part, anim in new_state_def.items():
-                if part not in old_state_def or old_state_def[part] != anim:
-                    char._actor.set_play_rate(char.play_rate, anim, partName=part)
-                    char._actor.loop(anim, partName=part)
+            char._actor.stash()
+            char._state_paths[new_state].unstash()
 
     def update(self, entities_by_filter):
         for entity in entities_by_filter['character']:

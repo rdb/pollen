@@ -52,6 +52,7 @@ class TerrainSystem(System):
         System.__init__(self)
 
         self.objects = {}
+        self.actor_states = {}
 
     def init_entity(self, filter_name, entity):
         if filter_name == 'terrain':
@@ -223,16 +224,45 @@ class TerrainSystem(System):
 
             if model.find("**/+Character"):
                 if Character in entity:
-                    model = Actor(obj.model)
-                    char = entity[Character]
-                    char._actor = model
+                    model = core.NodePath("states")
                     model.set_transparency(1)
 
+                    actor = Actor(obj.model)
+                    char = entity[Character]
+                    char._actor = actor
+                    actor.reparent_to(model)
+                    #actor.stash()
+
                     for part, joints in char.subparts.items():
-                        char._actor.make_subpart(part, joints)
+                        actor.make_subpart(part, joints)
+
+                    for state, part_anims in char.states.items():
+                        actor = self.actor_states.get((obj.model, state))
+                        if not actor:
+                            print("Creating actor", obj.model, "in state", state)
+                            actor = Actor(obj.model)
+                            self.actor_states[(obj.model, state)] = actor
+
+                            for part, joints in char.subparts.items():
+                                actor.make_subpart(part, joints)
+
+                            for part, anim in part_anims.items():
+                                actor.set_play_rate(char.play_rate, anim, partName=part)
+                                actor.loop(anim, partName=part)
+                                #actor.pose(anim, -1, partName=part)
+
+                        inst = actor.instance_under_node(model, state)
+                        char._state_paths[state] = inst
+                        inst.stash()
 
                     #if obj.shadeless:
                     #    model.set_light_off(1)
+
+            if entity._uid.name == 'player':
+                model.set_color((2.0, 0.5, 1.0, 1), 10000)
+                model.set_color_scale((1, 1, 1, 1), 10000)
+                model.set_shader_off(2000)
+                model.set_h(10)
 
             if obj.material:
                 model.set_material(obj.material, 1)

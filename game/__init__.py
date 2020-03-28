@@ -331,10 +331,10 @@ class Game(ECSShowBase):
                     states={
                         "locked": {"flower": "closed_idle"},
                         "closed": {"flower": "closed_idle"},
-                        "open": {"flower": "open_idle"},
+                        "open": {"flower": ""},
                     },
                     transitions={
-                        (None, "closed"): {"vine": "vine"},
+                        #(None, "closed"): {"vine": "vine"},
                         ("locked", "open"): {"flower": "open", "vine": "vine"},
                         ("closed", "open"): {"flower": "open"},
                     },
@@ -538,9 +538,9 @@ class Game(ECSShowBase):
 
         self.accept('player-into-flower', self.handle_collision)
 
-        self.render.find("**/butterfly").set_color((2.0, 0.5, 1.0, 1), 10000)
-        self.render.find("**/butterfly").set_color_scale((1, 1, 1, 1), 10000)
-        self.render.find("**/butterfly").set_shader_off(20)
+        #self.render.find("**/butterfly").set_color((2.0, 0.5, 1.0, 1), 10000)
+        #self.render.find("**/butterfly").set_color_scale((1, 1, 1, 1), 10000)
+        #self.render.find("**/butterfly").set_shader_off(20)
 
         sky = loader.load_model("models/sky")
         sky.set_bin('background', 1)
@@ -653,10 +653,12 @@ class Game(ECSShowBase):
 
     def handle_collision(self, entry):
         flower = entry.into_node.get_python_tag('entity')
-        if flower[Character].state == 'open':
-            return
 
-        flower[Character].state = 'open'
+        if Character in flower:
+            if flower[Character].state == 'open':
+                return
+
+            flower[Character].state = 'open'
 
         self.flower_icons[flower._uid].remove_node()
 
