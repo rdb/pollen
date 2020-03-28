@@ -14,7 +14,6 @@ uniform float osg_FrameTime;
 attribute vec4 p3d_Vertex;
 attribute vec4 p3d_Color;
 attribute vec3 p3d_Normal;
-attribute vec2 p3d_MultiTexCoord0;
 
 varying vec3 v_position;
 varying vec4 v_color;
@@ -33,11 +32,18 @@ void main() {
     v_position = vec3(p3d_ViewMatrix * vec4(wspos, 1));
     v_color = p3d_Color;
     v_normal = normalize(p3d_NormalMatrix * p3d_Normal);
-    v_texcoord = p3d_MultiTexCoord0;
+    v_texcoord = vec2(0, 0);
 
     float sat = texture2D(satmap, wspos.xy * scale.xy).r;
     //v_color.rgb = mix(v_color.ggg, v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
-    v_color.rgb = mix(v_color.ggg * vec3(188/255.0, 152/255.0, 101/255.0), v_color.rgb, (sat > 0.5) ? 1.0 : sat*2);
+    sat = (sat > 0.5) ? 1.0 : sat*2;
+    v_color.rgb = mix(v_color.ggg * vec3(188/255.0, 152/255.0, 101/255.0), v_color.rgb, sat);
+    v_color.a = 1;
+
+    if (p3d_Color.g > 0.75) {
+      v_color.a = sat - mod(v_position.x, 0.5);
+    }
+
 
     gl_Position = p3d_ProjectionMatrix * vec4(v_position, 1);
 }

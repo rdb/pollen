@@ -95,6 +95,10 @@ vec3 diffuse_function(FunctionParamters func_params) {
 }
 
 void main() {
+    if (v_color.a < 0.5) {
+        discard;
+    }
+
     vec4 metal_rough = texture2D(p3d_TextureMetalRoughness, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metal_rough.b, 0.0, 1.0);
     float perceptual_roughness = clamp(p3d_Material.roughness * metal_rough.g,  0.0, 1.0);
