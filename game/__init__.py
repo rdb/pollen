@@ -475,6 +475,41 @@ class Game(ECSShowBase):
             )
             self.rocks.append(rock)
 
+        tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
+
+        shrub_positions = [
+            (145.1654531609378, 84.56205859354166, 0),
+            (133.99739124052564, 95.74738159686336, 0),
+            (188.5086361801647, 81.75343430304068, 0),
+            (120.84985539195297, 25.173721786609676, 0),
+        ]
+        self.shrubs = []
+        for pos in shrub_positions:
+            scale = random()*0.125+0.45
+            dir = random()*360
+            sub = choice([
+                '**/shrub',
+                '**/shrub.001',
+                '**/shrub.002',
+            ])
+            shrub = self.ecs_world.create_entity(
+                TerrainObject(
+                    self.terrain,
+                    model='models/shrub.bam',
+                    path=sub,
+                    scale=scale,
+                    position=pos,
+                    direction=dir,
+                    material=mat,
+                    shader=tree_shader,
+                    wraparound=64,
+                    draw_distance=64,
+                ),
+                Collider(solid=core.CollisionSphere((0, 0, 1), 1.3), into_mask=0b11),
+                name="shrub",
+            )
+            self.shrubs.append(shrub)
+
         tree_positions = [
             (141.44997331973642, 90.01814911779846, 0),
             (140.939259035704, 104.62580330682461, 0),
@@ -534,8 +569,6 @@ class Game(ECSShowBase):
             (115.33554257802335, 235.12176260428103, 0),
             #(188.00154226065294, 244.918254643617, 0),
         ]
-
-        tree_shader = core.Shader.load(core.Shader.SL_GLSL, "assets/shaders/tree.vert", "assets/shaders/object.frag")
 
         self.trees = []
         for pos in tree_positions:

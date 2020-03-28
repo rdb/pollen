@@ -39,6 +39,7 @@ class TerrainObject:
     shadeless: bool = False
     shader: core.Shader = None
     wraparound: float = 0
+    draw_distance: float = None
 
 
 class TerrainSystem(System):
@@ -210,7 +211,12 @@ class TerrainSystem(System):
     def init_terrain_object(self, entity):
         obj = entity[TerrainObject]
 
-        path = base.render.attach_new_node(entity._uid.name)
+        if obj.draw_distance is not None:
+            path = base.render.attach_new_node(core.FadeLODNode(entity._uid.name))
+            path.node().add_switch(obj.draw_distance, 0)
+        else:
+            path = base.render.attach_new_node(entity._uid.name)
+
         obj._root = path
 
         if obj.model:

@@ -41,7 +41,7 @@ void main() {
     v_color.rgb = mix(v_color.ggg * vec3(188/255.0, 152/255.0, 101/255.0), v_color.rgb, sat);
     v_color.a = 1;
 
-    if (p3d_Color.g > 0.75) {
+    if (p3d_Color.g > 0.7) {
       v_color.a = sat + 0.25 - mod(v_position.x + v_position.y * 10 + v_position.z * 100, 0.5);
     }
 
