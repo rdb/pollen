@@ -86,6 +86,8 @@ class CollisionDetectionSystem(System):
         cpath = path.attach_new_node(cnode)
         #cpath.show()
 
+        collider._cpath = cpath
+
         cnode.set_python_tag('entity', entity)
 
         if collider.from_mask:
@@ -118,6 +120,19 @@ class CollisionDetectionSystem(System):
                     #cpath.show()
                     self.joint_colliders.append(cpath)
                     #self.traverser.add_collider(cpath, self.handler)
+
+    def destroy_entity(self, filter, entity, removed={}):
+        collider = removed.get(Collider)
+        if not collider:
+            return
+
+        cpath = collider._cpath
+
+        if collider.from_mask:
+            if entity._uid.name == "camera":
+                self.traverser.remove_collider(cpath)
+            else:
+                self.traverser.remove_collider(cpath)
 
     def _enter_butterfly(self, entry):
         cpath = entry.get_from_node_path()
