@@ -181,6 +181,9 @@ class CollisionDetectionSystem(System):
                 self.traverser.remove_collider(cpath)
 
     def update(self, entities_by_filter):
+        if base.paused:
+            return
+
         if self.player_obj:
             old_pos = self.player_obj._root.get_pos()
 

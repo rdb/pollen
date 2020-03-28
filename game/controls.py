@@ -124,7 +124,7 @@ class PlayerController(System, DirectObject):
             ))
 
     def update(self, entities_by_filter):
-        if not base.started:
+        if not base.started or base.paused:
             return
 
         for entity in entities_by_filter['player']:

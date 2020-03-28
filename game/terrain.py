@@ -346,6 +346,9 @@ class TerrainSystem(System):
                 inst.set_pos(inst.get_pos() + (256, -256, 0))
 
     def update(self, entities_by_filter):
+        if base.paused:
+            return
+
         for entity in entities_by_filter['movable']:
             obj = entity[TerrainObject]
 

@@ -47,6 +47,9 @@ class AnimationPlayer(System):
             char._state_paths[new_state].unstash()
 
     def update(self, entities_by_filter):
+        if base.paused:
+            return
+
         for entity in entities_by_filter['character']:
             char = entity[Character]
 

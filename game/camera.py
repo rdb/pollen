@@ -57,6 +57,9 @@ class CameraSystem(System):
         controls._states[action] = 0.0
 
     def update(self, entities_by_filter):
+        if base.paused:
+            return
+
         for entity in entities_by_filter['camera']:
             camera = entity[Camera]
 

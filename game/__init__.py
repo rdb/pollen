@@ -1,7 +1,4 @@
 from direct.showbase.ShowBase import ShowBase
-from wecs.panda3d.core import ECSShowBase
-from direct.gui.OnscreenText import OnscreenText
-from direct.gui.DirectButton import DirectButton
 import direct.gui.DirectGuiGlobals as DGG
 from direct.actor.Actor import Actor
 from direct.interval.IntervalGlobal import Sequence, Parallel, Wait, Func, LerpFunctionInterval
@@ -11,10 +8,12 @@ import sys
 import simplepbr
 
 
+from .audio import Music
+from .menu import Menu
 from .world import World
 
 
-class Game(ECSShowBase):
+class Game(ShowBase):
     def __init__(self):
         main_dir = core.ExecutionEnvironment.get_environment_variable("MAIN_DIR")
         main_dir = core.Filename.from_os_specific(main_dir)
@@ -22,6 +21,9 @@ class Game(ECSShowBase):
 
         ShowBase.__init__(self)
         self.disable_mouse()
+
+        DGG.setDefaultRolloverSound(loader.load_sfx('sfx/ui-a.ogg'))
+        DGG.setDefaultClickSound(loader.load_sfx('sfx/ui-b.ogg'))
 
         mat = core.Material()
         mat.twoside = True
@@ -37,7 +39,22 @@ class Game(ECSShowBase):
         #self.flower.set_fog_off(100)
         #self.flower.set_shader_off(100)
 
-        self.draw_menu()
+        is_fullscreen = self.win.get_properties().fullscreen
+
+        self.main_menu = Menu('pollen.', [
+            ('begin.', self.start_game),
+            ('no music.', self.toggle_music),
+            ('window.' if is_fullscreen else 'fullscreen.', self.toggle_fullscreen),
+            ('leave.', sys.exit),
+        ])
+
+        self.pause_menu = Menu('paused.', [
+            ('resume.', self.resume),
+            ('no music.', self.toggle_music),
+            ('stop.', sys.exit),
+        ])
+
+        base.paused = False
 
         #base.cam.set_pos(-3, 0, 10)
         base.cam.set_pos(0, 0, 10)
@@ -51,39 +68,9 @@ class Game(ECSShowBase):
         self.accept('1', self.oobeCull)
         self.starting = False
         self.started = False
+        self.music_on = True
 
-    def draw_menu(self):
-        self.menu = base.a2dBottomLeft.attach_new_node("menu")
-
-        self.title = OnscreenText(parent=self.menu, text='pollen.', align=core.TextNode.A_left, pos=(0.07, 0.625), scale=0.1, fg=(1, 1, 1, 1))
-
-        text_fg = (1, 1, 1, 0.6)
-
-        is_fullscreen = self.win.get_properties().fullscreen
-
-        #x = (0.9 + 0.4) / 2
-        x = 0.08
-        spacing = 0.08
-        scale=0.05
-        y = 0.51
-        btns = []
-        btns.append(DirectButton(text='begin.', command=self.start_game, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
-        btns.append(DirectButton(text='windowed.' if is_fullscreen else 'fullscreen.', command=self.toggle_fullscreen, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*1), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
-        btns.append(DirectButton(text='leave.', command=sys.exit, parent=self.menu, text_align=core.TextNode.A_left, pos=(x, 0.0, y-spacing*2), scale=scale, text_fg=(1, 1, 1, 1), relief=None))
-        self.menu_buttons = btns
-
-        for i, btn in enumerate(btns):
-            btn.set_color_scale(text_fg)
-            btn.bind(DGG.ENTER, self._focus_button, [i])
-            btn.bind(DGG.EXIT, self._unfocus_button, [i])
-
-    def _focus_button(self, i, param):
-        btn = self.menu_buttons[i]
-        btn.colorScaleInterval(0.2, (1, 1, 1, 1), blendType='easeInOut').start()
-
-    def _unfocus_button(self, i, param):
-        btn = self.menu_buttons[i]
-        btn.colorScaleInterval(0.2, (1, 1, 1, 0.6), blendType='easeInOut').start()
+        self.main_menu.show()
 
     def start_game(self):
         if self.starting:
@@ -91,7 +78,7 @@ class Game(ECSShowBase):
 
         self.starting = True
 
-        Sequence(self.menu.colorScaleInterval(1.5, (1, 1, 1, 0)), Func(self.menu.stash)).start()
+        self.main_menu.hide()
         #self.world.start_game()
 
         Sequence(
@@ -129,6 +116,19 @@ class Game(ECSShowBase):
         self.accept('4', self.world.ending)
         self.accept('p', self.world.print_pos)
 
+        self.accept('pause', self.pause)
+        self.accept('escape', self.pause)
+
+    def pause(self):
+        if self.paused:
+            return
+        self.world.music[Music].play('pause')
+        self.paused = True
+        self.pause_menu.show()
+
+    def resume(self):
+        self.pause_menu.hide()
+        self.paused = False
 
     def toggle_fullscreen(self):
         is_fullscreen = self.win.get_properties().fullscreen
@@ -136,12 +136,26 @@ class Game(ECSShowBase):
             print("Disabling fullscreen")
             size = core.WindowProperties.get_default().size
             self.win.request_properties(core.WindowProperties(fullscreen=False, origin=(-2, -2), size=size))
-            self.menu_buttons[1]['text'] = 'fullscreen.'
+            self.main_menu.buttons[3]['text'] = 'fullscreen.'
         else:
             print("Enabling fullscreen")
             size = self.pipe.get_display_width(), self.pipe.get_display_height()
             self.win.request_properties(core.WindowProperties(fullscreen=True, size=size))
-            self.menu_buttons[1]['text'] = 'windowed.'
+            self.main_menu.buttons[3]['text'] = 'window.'
+
+    def toggle_music(self):
+        if self.music_on:
+            print("Disabling music")
+            self.enable_music(False)
+            self.main_menu.buttons[1]['text'] = 'yes music.'
+            self.pause_menu.buttons[1]['text'] = 'yes music.'
+            self.music_on = False
+        else:
+            print("Enabling music")
+            self.enable_music(True)
+            self.main_menu.buttons[1]['text'] = 'no music.'
+            self.pause_menu.buttons[1]['text'] = 'no music.'
+            self.music_on = True
 
 
 def main():
