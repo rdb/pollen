@@ -166,6 +166,8 @@ class TerrainSystem(System):
 
         if base.quality == 0:
             patch = loader.load_model("assets/models/patch-potato.bam")
+        elif base.quality == 1:
+            patch = loader.load_model("assets/models/patch-low.bam")
         else:
             patch = loader.load_model("assets/models/patch.bam")
         patch_size = int(patch.get_tag('patch_size'))
