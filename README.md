@@ -31,6 +31,8 @@ Modelling by hjh
 
 Original soundtrack by hjh
 
+Sound effects by hjh
+
 Programming by rdb
 
 Skybox created by [Roel](https://reije081.home.xs4all.nl/skyboxes/) (CC BY-NC-SA)
