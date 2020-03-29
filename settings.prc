@@ -9,9 +9,11 @@ model-path $MAIN_DIR/assets
 
 window-title pollen.
 fullscreen false
-win-fixed-size true
+#win-fixed-size true
 win-size 1022 766
 win-origin -2 -2
+
+icon-filename icons/icon.ico
 
 textures-power-2 none
 

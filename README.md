@@ -10,6 +10,8 @@ Use the mouse to navigate, click (or press shift) to gain speed.
 
 Gamepad controls are also supported.  The menus require a D-Pad.  Use either stick to turn, and hold trigger, or A, to speed.
 
+If you want to cheat to be done quickly, press M to open a minimap.
+
 ## Running from source
 
 Requires Python 3 and Panda3D 1.10.6, plus a few other libraries.  I recommend installing them via pip:
@@ -25,14 +27,16 @@ python run_game.py
 
 ## Acknowledgements
 
-Art by @janEntikan
+Modelling by hjh
 
-Original soundtrack by @janEntikan
+Original soundtrack by hjh
 
-Programming by @rdb
+Programming by rdb
 
 Skybox created by [Roel](https://reije081.home.xs4all.nl/skyboxes/) (CC BY-NC-SA)
 
 Font is Nunito Bold, licensed under the OFL.
+
+With grateful nod to the PS3 game Flower.
 
 Many thanks to @lordmauve and all the other PyWeek participants for a great challenge!
