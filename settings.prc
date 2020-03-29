@@ -21,3 +21,5 @@ bounds-type best
 
 text-default-font fonts/Nunito-Bold.ttf
 text-pixels-per-unit 64
+
+audio-library-name p3openal_audio

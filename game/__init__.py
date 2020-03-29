@@ -28,6 +28,10 @@ class Game(ShowBase):
         ShowBase.__init__(self)
         self.disable_mouse()
 
+        # Workaround for failure to load simplepbr shaders on macOS
+        if getattr(sys, 'frozen', False) and sys.platform == 'darwin':
+            simplepbr.__file__ = self.main_dir + '/'
+
         self.assume_gamepad = False
 
         DGG.setDefaultRolloverSound(loader.load_sfx('sfx/ui-a.ogg'))

@@ -83,7 +83,8 @@ class TerrainSystem(System):
         heightfield = core.PNMImage(heightmap_size, heightmap_size, 1)
         heightfield.set_maxval(0xffff)
         #heightfield.perlin_noise_fill(noise)
-        heightfield.read('assets/textures/heightmap.png')
+        status = heightfield.read(core.Filename.expand_from('$MAIN_DIR/assets/textures/heightmap.png'))
+        assert status, "Could not read heightmap"
         #heightfield.make_grayscale()
         #assert heightfield.is_grayscale()
 
