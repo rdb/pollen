@@ -36,6 +36,7 @@ class Menu(DirectObject):
         self._selected = None
 
         self.root.stash()
+        self._fade_interval = None
 
     def _press_down(self, gamepad=False):
         base.assume_gamepad = gamepad
@@ -83,7 +84,12 @@ class Menu(DirectObject):
 
         self.root.set_color_scale((1, 1, 1, 0))
         self.root.unstash()
-        self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 1)).start()
+
+        if self._fade_interval:
+            self._fade_interval.pause()
+
+        self._fade_interval = self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 1))
+        self._fade_interval.start()
 
         if base.assume_gamepad and self.buttons:
             self._selected = 0
@@ -94,4 +100,9 @@ class Menu(DirectObject):
         if self._selected is not None:
             self._unfocus_button(self._selected)
             self._selected = None
-        Sequence(self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 0)), Func(self.root.stash)).start()
+
+        if self._fade_interval:
+            self._fade_interval.pause()
+
+        self._fade_interval = Sequence(self.root.colorScaleInterval(FADE_TIME, (1, 1, 1, 0)), Func(self.root.stash))
+        self._fade_interval.start()
