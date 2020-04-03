@@ -6,7 +6,7 @@ This is an entry in the [PyWeek 29](https://pyweek.org/29/) challenge, with the 
 
 [Click here to go to the PyWeek entry page.](https://pyweek.org/e/flowpow/)
 
-<img src="/cover.gif" />
+![pollen.](https://raw.githubusercontent.com/rdb/pollen/fb66ec83b7752f791431ff197f9c6ec332d306c5/cover.gif)
 
 ## Controls
 
