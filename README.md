@@ -1,8 +1,12 @@
-# pollen.
+### pollen.
 
-Awaken spring.
+This is an entry in the [PyWeek 29](https://pyweek.org/29/) challenge, with the theme "Butterfly Effect".
 
-This is an entry in the [PyWeek 29](https://pyweek.org/29/) challenge.
+[Click here to go to the game's page on itch.io.](https://rdb.itch.io/pollen)
+
+[Click here to go to the PyWeek entry page.](https://pyweek.org/e/flowpow/)
+
+![pollen.](https://s3.eu-west-2.amazonaws.com/media.pyweek.org/29/flowpow/cover.gif)
 
 ## Controls
 
