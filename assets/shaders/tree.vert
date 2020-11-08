@@ -1,4 +1,4 @@
-#version 120
+#version 330
 
 uniform mat4 p3d_ProjectionMatrix;
 uniform mat4 p3d_ModelMatrix;
@@ -11,20 +11,20 @@ uniform sampler2D satmap;
 
 uniform float osg_FrameTime;
 
-attribute vec4 p3d_Vertex;
-attribute vec4 p3d_Color;
-attribute vec3 p3d_Normal;
+in vec4 p3d_Vertex;
+in vec4 p3d_Color;
+in vec3 p3d_Normal;
 
-varying vec3 v_position;
-varying vec4 v_color;
-varying vec2 v_texcoord;
-varying vec3 v_normal;
+out vec3 v_position;
+out vec4 v_color;
+out vec2 v_texcoord;
+out vec3 v_normal;
 
 void main() {
     vec3 wspos_model = p3d_ModelMatrix[3].xyz;
     vec3 wspos = (p3d_ModelMatrix * p3d_Vertex).xyz;
 
-    float sat = texture2D(satmap, wspos_model.xy * scale.xy).r;
+    float sat = texture(satmap, wspos_model.xy * scale.xy).r;
     sat = (sat > 0.5) ? 1.0 : sat*2;
 
     v_color.a = 1;
@@ -36,7 +36,7 @@ void main() {
 
     float t = p3d_Vertex.z / 5;
 
-    float wind = texture2D(windmap, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
+    float wind = texture(windmap, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
     float wind_offset = wind * t * t;
     wspos.x += wind_offset;
 

@@ -1,13 +1,13 @@
-#version 120
+#version 330
 
 uniform mat4 p3d_ModelMatrix;
 uniform mat4 p3d_ViewMatrix;
 uniform mat4 p3d_ModelViewMatrix;
 uniform mat4 p3d_ProjectionMatrix;
 
-attribute vec4 p3d_Vertex;
-attribute vec4 p3d_Tangent;
-attribute vec2 p3d_MultiTexCoord0;
+in vec4 p3d_Vertex;
+in vec4 p3d_Tangent;
+in vec2 p3d_MultiTexCoord0;
 
 uniform float osg_FrameTime;
 
@@ -17,10 +17,10 @@ uniform sampler2D terrainmap;
 uniform sampler2D windmap;
 uniform sampler2D satmap;
 
-varying vec3 v_position;
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec2 v_texcoord;
+out vec3 v_position;
+out vec4 v_color;
+out vec3 v_normal;
+out vec2 v_texcoord;
 
 void main() {
     mat4 modelmat = p3d_ModelMatrix;
@@ -28,18 +28,18 @@ void main() {
     vec3 wspos = (modelmat * p3d_Vertex).xyz;
 
     // normal is stored in xyz, height in alpha
-    vec4 sample = texture2D(terrainmap, wspos.xy * scale.xy);
+    vec4 sample = texture(terrainmap, wspos.xy * scale.xy);
     float hval = sample.a;
     vec3 normal = sample.xyz * 2.0 - 1.0;
 
     float t = p3d_MultiTexCoord0.y;
-    float wind = texture2D(windmap, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
+    float wind = texture(windmap, wspos.xy * scale.xy * 4 + vec2(osg_FrameTime * 0.06, 0)).r - 0.5;
     float wind_offset = wind * (t * t) * 5;
 
     v_color.g = hval * 0.333;
     v_color.a = 1;
 
-    float sat = texture2D(satmap, wspos.xy * scale.xy).r;
+    float sat = texture(satmap, wspos.xy * scale.xy).r;
     v_color.b = (sat > 0.5) ? 1.0 : sat*2;
 
     vec2 shove = vec2(0);

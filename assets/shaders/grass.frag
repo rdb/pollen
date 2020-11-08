@@ -1,6 +1,6 @@
 // Based on code from https://github.com/KhronosGroup/glTF-Sample-Viewer
 
-#version 120
+#version 330
 
 #define MAX_LIGHTS 2
 
@@ -58,10 +58,10 @@ const float PI = 3.141592653589793;
 const float SPOTSMOOTH = 0.001;
 const float LIGHT_CUTOFF = 0.001;
 
-varying vec3 v_position;
-varying vec4 v_color;
-varying vec3 v_normal;
-varying vec2 v_texcoord;
+in vec3 v_position;
+in vec4 v_color;
+in vec3 v_normal;
+in vec2 v_texcoord;
 
 // Schlick's Fresnel approximation
 vec3 specular_reflection(FunctionParamters func_params) {
@@ -93,7 +93,7 @@ vec3 diffuse_function(FunctionParamters func_params) {
 }
 
 void main() {
-    vec4 tex_color = texture2D(p3d_TextureBaseColor, v_texcoord);
+    vec4 tex_color = texture(p3d_TextureBaseColor, v_texcoord);
     if (tex_color.a < 0.5) {
         discard;
     }

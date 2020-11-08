@@ -1,6 +1,6 @@
 // Based on code from https://github.com/KhronosGroup/glTF-Sample-Viewer
 
-#version 120
+#version 330
 
 #define MAX_LIGHTS 2
 
@@ -60,10 +60,10 @@ const float PI = 3.141592653589793;
 const float SPOTSMOOTH = 0.001;
 const float LIGHT_CUTOFF = 0.001;
 
-varying vec3 v_position;
-varying vec4 v_color;
-varying vec2 v_texcoord;
-varying vec3 v_normal;
+in vec3 v_position;
+in vec4 v_color;
+in vec2 v_texcoord;
+in vec3 v_normal;
 
 // Schlick's Fresnel approximation
 vec3 specular_reflection(FunctionParamters func_params) {
@@ -99,11 +99,11 @@ void main() {
         discard;
     }
 
-    vec4 metal_rough = texture2D(p3d_TextureMetalRoughness, v_texcoord);
+    vec4 metal_rough = texture(p3d_TextureMetalRoughness, v_texcoord);
     float metallic = clamp(p3d_Material.metallic * metal_rough.b, 0.0, 1.0);
     float perceptual_roughness = clamp(p3d_Material.roughness * metal_rough.g,  0.0, 1.0);
     float alpha_roughness = perceptual_roughness * perceptual_roughness;
-    vec4 base_color = p3d_Material.baseColor * v_color * p3d_ColorScale * texture2D(p3d_TextureBaseColor, v_texcoord);
+    vec4 base_color = p3d_Material.baseColor * v_color * p3d_ColorScale * texture(p3d_TextureBaseColor, v_texcoord);
     vec3 diffuse_color = (base_color.rgb * (vec3(1.0) - F0)) * (1.0 - metallic);
     vec3 spec_color = mix(F0, base_color.rgb, metallic);
     vec3 reflection90 = vec3(clamp(max(max(spec_color.r, spec_color.g), spec_color.b) * 50.0, 0.0, 1.0));
